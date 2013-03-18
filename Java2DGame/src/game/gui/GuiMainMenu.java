@@ -2,6 +2,7 @@ package game.gui;
 
 import game.Game;
 import game.InputHandler;
+import game.entity.Heart;
 import game.entity.Player;
 import game.gui.elements.ChooseList;
 import game.gui.elements.FontRenderer;
@@ -38,9 +39,10 @@ public class GuiMainMenu extends Gui {
 		if (elementId == list.getId()) {
 			switch (action) {
 			case 0:
-				game.setLevel("/levels/test3.png");
+				game.setLevel("/levels/tile_test.png");
 				game.player = new Player(game, game.level, 32, 32, game.input);
 				game.level.addEntity(game.player);
+				game.level.addEntity(new Heart(game.level, 25*8, 30*8));
 				closeGui();
 				break;
 			case 1:

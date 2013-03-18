@@ -8,6 +8,7 @@ public abstract class Entity {
 	public int x, y;
 	protected int renderLayer = 1;
 	protected Level level;
+	protected int tickCount;
 
 	public Entity(Level level) {
 		init(level);
@@ -17,7 +18,9 @@ public abstract class Entity {
 		this.level = level;
 	}
 	
-	public abstract void tick();
+	public void tick() {
+		tickCount++;
+	}
 	
 	public abstract void render(Screen screen);
 	

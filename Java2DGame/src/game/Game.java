@@ -1,15 +1,12 @@
 package game;
 
 import game.entity.Player;
-import game.gfx.Colors;
 import game.gfx.Screen;
 import game.gfx.SpriteSheet;
-import game.gfx.Tint;
 import game.gui.Gui;
 import game.gui.GuiMainMenu;
 import game.level.Level;
 
-import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -28,8 +25,11 @@ public class Game extends Canvas implements Runnable {
 	public static final int HEIGHT = WIDTH / 12 * 9;
 	public static final int SCALE = 3;
 	public static final String NAME = "Game";
+	public static final Dimension DIMENSIONS = new Dimension(WIDTH * SCALE,
+			HEIGHT * SCALE);
 
 	public JFrame frame;
+	private Thread thread;
 
 	private boolean running = false;
 	public int ticks = 0;
@@ -48,31 +48,8 @@ public class Game extends Canvas implements Runnable {
 	public Gui gui;
 	public Gui hud;
 
-	public Time time;
-	private int timeDurationLeft;
-	private int lastTimeSwitchTicks;
-	private Tint currentTint;
-
 	private boolean isGamePaused;
-
-	public Game() {
-		setMinimumSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
-		setMaximumSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
-		setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
-
-		frame = new JFrame(NAME);
-
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLayout(new BorderLayout());
-
-		frame.add(this, BorderLayout.CENTER);
-		frame.pack();
-
-		frame.setResizable(false);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
-		frame.requestFocus();
-	}
+	public static boolean DEBUG = true;
 
 	public void init() {
 		int index = 0;
@@ -87,8 +64,6 @@ public class Game extends Canvas implements Runnable {
 				}
 			}
 		}
-
-		time = Time.MORNING;
 
 		screen = new Screen(WIDTH, HEIGHT, new SpriteSheet("/sprite_sheet.png"));
 		input = new InputHandler(this);
@@ -123,7 +98,7 @@ public class Game extends Canvas implements Runnable {
 			}
 
 			try {
-				Thread.sleep(2L);
+				Thread.sleep(5L);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -135,9 +110,7 @@ public class Game extends Canvas implements Runnable {
 
 			if (System.currentTimeMillis() - lastTimer >= 1000) {
 				lastTimer += 1000;
-				System.out.println(framesPS + " frames, " + ticksPS + " ticks"
-						+ " weight: " + (double) (ticks - lastTimeSwitchTicks)
-						/ (double) time.getDuration());
+				debug(DebugLevel.INFO, framesPS + " frames, " + ticksPS + " ticks");
 				framesPS = 0;
 				ticksPS = 0;
 			}
@@ -166,15 +139,6 @@ public class Game extends Canvas implements Runnable {
 	private void tickLevel() {
 		level.tick();
 		hud.tick(ticks);
-		timeDurationLeft--;
-		if (timeDurationLeft <= 0) {
-			switchTime();
-		}
-		currentTint = Tint.getWeightedAverage(
-				time.getTint(),
-				(this.getTime(time.getId() - 1)).getTint(),
-				(double) (ticks - lastTimeSwitchTicks)
-						/ (double) time.getDuration());
 	}
 
 	public void render() {
@@ -214,11 +178,7 @@ public class Game extends Canvas implements Runnable {
 					for (int x = 0; x < screen.width; x++) {
 						int colorCode = screen.pixels[x + y * screen.width];
 						if (colorCode < 255) {
-							// pixels[x + y * WIDTH] = colors[colorCode];
-							// pixels[x + y * WIDTH] =
-							// Colors.tint(colors[colorCode], 0.2D, 0.2D, 0.6D);
-							pixels[x + y * WIDTH] = Colors.tint(
-									colors[colorCode], currentTint);
+							pixels[x + y * WIDTH] = colors[colorCode];
 						}
 					}
 				}
@@ -250,75 +210,45 @@ public class Game extends Canvas implements Runnable {
 		this.gui = null;
 	}
 
-	public void switchTime() {
-		switch (time) {
-		case NIGHT:
-			time = Time.MORNING;
-			break;
-		case EVEN:
-			time = Time.NIGHT;
-			break;
-		case NOON:
-			time = Time.EVEN;
-			break;
-		case MORNING:
-			time = Time.NOON;
-			break;
-		}
-		timeDurationLeft = time.getDuration();
-		lastTimeSwitchTicks = ticks;
-		System.out.println("Time set to: " + time);
-	}
-
 	public synchronized void start() {
 		running = true;
-		new Thread(this).start();
+		thread = new Thread(this, Game.NAME + "_main");
+		thread.start();
 	}
 
 	public synchronized void stop() {
 		running = false;
-	}
 
-	public static void main(String[] args) {
-		new Game().start();
-	}
-
-	public enum Time {
-		MORNING(0, new Tint(1.0D, 0.9D, 0.7D), 150), NOON(1, new Tint(1.0D,
-				1.0D, 1.0D), 700), EVEN(2, new Tint(1.0D, 0.8D, 0.4D), 150), NIGHT(
-				3, new Tint(0.3D, 0.3D, 0.8D), 500);
-
-		private Tint tint;
-		private int duration;
-		private int id;
-
-		private Time(int id, Tint tint, int duration) {
-			this.tint = tint;
-			this.id = id;
-			this.duration = duration;
-		}
-
-		public int getId() {
-			return id;
-		}
-
-		public Tint getTint() {
-			return tint;
-		}
-
-		public int getDuration() {
-			return duration;
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
-
-	public Time getTime(int id) {
-		Time time = Time.NIGHT;
-		for (int i = 0; i < Time.values().length; i++) {
-			if (Time.values()[i].id == id) {
-				time = Time.values()[i];
+	
+	public static void debug(DebugLevel level, String msg) {
+		switch(level) {
+		default:
+		case INFO:
+			if(Game.DEBUG) {
+				System.out.println("[" + NAME + "] " + msg);
 			}
+			break;
+		case WARNING:
+			if(Game.DEBUG) {
+				System.out.println("[" + NAME + "] WARNING: " + msg);
+			}
+			break;
+		case ERROR:
+			if(Game.DEBUG) {
+				System.out.println("[" + NAME + "] CRIT. ERROR: " + msg);
+				System.out.println("System forced to exit!");
+			}
+			break;
 		}
-		return time;
 	}
 
+	public static enum DebugLevel {
+		INFO, WARNING, ERROR;
+	}
 }

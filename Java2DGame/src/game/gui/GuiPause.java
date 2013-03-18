@@ -16,8 +16,7 @@ public class GuiPause extends Gui{
 		list = new ChooseList(0, this);
 		list.addOption(list.new Option(0, "Resume"));
 		list.addOption(list.new Option(1, "Options"));
-		list.addOption(list.new Option(2, "Switch time"));
-		list.addOption(list.new Option(3, "Exit"));
+		list.addOption(list.new Option(2, "Exit"));
 	}
 
 	public void actionPerformed(InputHandler input) {
@@ -45,11 +44,6 @@ public class GuiPause extends Gui{
 				splash = "Nope! Still no options.";
 				break;
 			case 2:
-				game.switchTime();
-				splash = "Time has been set!";
-				System.out.println("Time set to: " + game.time.getId());
-				break;
-			case 3:
 				System.out.println("The game has been quit!");
 				closeGui();
 				System.exit(0);

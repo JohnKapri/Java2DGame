@@ -1,5 +1,7 @@
 package game.level;
 
+import game.Game;
+import game.Game.DebugLevel;
 import game.entity.Entity;
 import game.gfx.Screen;
 import game.level.tile.Tile;
@@ -9,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
@@ -22,6 +25,8 @@ public class Level {
 	private String filePath;
 	private BufferedImage image;
 
+	private static Random rand = new Random();
+
 	public Level() {
 	}
 
@@ -29,16 +34,16 @@ public class Level {
 		for (Entity e : entities) {
 			e.tick();
 		}
-		
-		for(Tile t : Tile.tiles) {
-			if(t == null) {
+
+		for (Tile t : Tile.tiles) {
+			if (t == null) {
 				break;
 			}
 			t.tick();
 		}
 	}
 
-	private void generateLevel() {
+	public void generateLevel() {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				if (x * y % 10 < 5) {
@@ -62,8 +67,8 @@ public class Level {
 
 		screen.setOffset(xOffset, yOffset);
 
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
+		for (int y = (yOffset >> 3); y < (yOffset + screen.height >> 3) + 1; y++) {
+			for (int x = (xOffset >> 3); x < (xOffset + screen.width >> 3) + 1; x++) {
 				getTile(x, y).render(screen, this, x << 3, y << 3);
 			}
 		}
@@ -102,26 +107,35 @@ public class Level {
 		}
 	}
 
-	private void updateTileSheet(int x, int y, Tile newTile) {
+	public void updateTileSheet(int x, int y, Tile newTile) {
 		this.tiles[x + y * width] = newTile.getId();
 		this.image.setRGB(x, y, newTile.getLevelColor());
 	}
 
 	private void loadTiles() {
-		int[] tileColors = this.image.getRGB(0, 0, width, height, null, 0, width);
+		long time = System.currentTimeMillis();
+
+		int[] tileColors = this.image.getRGB(0, 0, width, height, null, 0,
+				width);
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				tileCheck: for (Tile t : Tile.tiles) {
 					if (t != null
 							&& t.getLevelColor() == tileColors[x + y * width]) {
-						this.tiles[x + y * width] = t.getId();
+						if(t.isParent() && rand.nextInt(100) < 8) {
+							this.tiles[x + y * width] = t.getChildren()[rand.nextInt(t.getChildren().length)];
+						} else {
+							this.tiles[x + y * width] = t.getId();
+						}
 						break tileCheck;
 					}
 				}
 			}
 		}
+		
+		Game.debug(DebugLevel.INFO, "Level loaded in " + (System.currentTimeMillis() - time));
 	}
-
+	
 	public void setTile(byte id, int x, int y) {
 		tiles[x + y * width] = id;
 	}

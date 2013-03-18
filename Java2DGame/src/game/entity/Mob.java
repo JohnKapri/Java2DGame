@@ -7,10 +7,12 @@ public abstract class Mob extends Entity {
 
 	protected String name;
 	protected int speed;
+	public int friction;
 	protected int numSteps = 0;
 	protected boolean isMoving;
 	protected int movingDir = 1;
 	protected int scale = 1;
+	protected boolean isSwimming = false;
 
 	public Mob(Level level, String name, int x, int y, int speed) {
 		super(level);
@@ -41,10 +43,15 @@ public abstract class Mob extends Entity {
 			if (xa > 0) {
 				movingDir = 3;
 			}
-
-			x += xa * speed;
-			y += ya * speed;
+			if (tickCount % friction == 0) {
+				x += xa * speed;
+				y += ya * speed;
+			}
 		}
+	}
+
+	public Tile getTileUnder() {
+		return (level.getTile(this.x >> 3, this.y >> 3));
 	}
 
 	public abstract boolean hasCollided(int xa, int ya);

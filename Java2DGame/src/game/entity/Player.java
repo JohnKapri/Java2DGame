@@ -70,6 +70,8 @@ public class Player extends Mob implements GameActionListener {
 	}
 
 	public void tick() {
+		super.tick();
+
 		if (hurtTime % 3 == 0) {
 			display = !display;
 		}
@@ -80,7 +82,7 @@ public class Player extends Mob implements GameActionListener {
 			hurtTime--;
 		}
 
-		if (numSteps % 10 == 0 && isMoving) {
+		if (numSteps % 10 == 0 && isMoving && tickCount % friction == 0) {
 			if (walkAnimStat == 0) {
 				walkAnimStat = 1;
 			} else {
@@ -117,15 +119,38 @@ public class Player extends Mob implements GameActionListener {
 			isMoving = false;
 		}
 
-		if (level.getTile((x - 4) / 8, (y - 4) / 8).getId() == Tile.SPIKES
-				.getId()
-				|| level.getTile((x + 4) / 8, (y + 4) / 8).getId() == Tile.SPIKES
-						.getId()
-				|| level.getTile((x - 4) / 8, (y + 4) / 8).getId() == Tile.SPIKES
-						.getId()
-				|| level.getTile((x + 4) / 8, (y - 4) / 8).getId() == Tile.SPIKES
-						.getId())
+		if (getTileUnder().getId() == Tile.WATER.getId()
+				|| getTileUnder().getId() == Tile.SWAMP.getId()) {
+			this.isSwimming = true;
+		} else {
+			if (isSwimming) {
+				isSwimming = false;
+			}
+		}
+		
+		getTileUnder().applyPlayerModifier(this);
+
+		// **Old friction stuff
+		// if (getTileUnder().getId() == Tile.SWAMP.getId()) {
+		// this.friction = 3;
+		// } else {
+		// this.friction = 1;
+		// }
+
+		// **Old get hurt stuff
+		// if (level.getTile((x - 4) / 8, (y - 4) / 8).getId() == Tile.SPIKES
+		// .getId()
+		// || level.getTile((x + 4) / 8, (y + 4) / 8).getId() == Tile.SPIKES
+		// .getId()
+		// || level.getTile((x - 4) / 8, (y + 4) / 8).getId() == Tile.SPIKES
+		// .getId()
+		// || level.getTile((x + 4) / 8, (y - 4) / 8).getId() == Tile.SPIKES
+		// .getId())
+		// hurt();
+
+		if (getTileUnder().getId() == Tile.SPIKES.getId()) {
 			hurt();
+		}
 
 		for (int i = 0; i < level.entities.size(); i++) {
 			Entity e = level.entities.get(i);
@@ -155,33 +180,68 @@ public class Player extends Mob implements GameActionListener {
 		int xOffset = x - modifier / 2;
 		int yOffset = y - modifier / 2 - 4;
 
+		if (isSwimming) {
+			int waterColor = 0;
+			yOffset += 4;
+			if (getTileUnder().getId() == Tile.WATER.getId()) {
+				if (tickCount % 60 < 15) {
+					waterColor = Colors.get(-1, -1, 225, -1);
+				} else if (15 <= tickCount % 60 && tickCount % 60 < 30) {
+					yOffset -= 1;
+					waterColor = Colors.get(-1, 225, 115, -1);
+				} else if (30 <= tickCount % 60 && tickCount % 60 < 45) {
+					waterColor = Colors.get(-1, 115, -1, 225);
+				} else {
+					yOffset -= 1;
+					waterColor = Colors.get(-1, 225, 115, -1);
+				}
+			}
+			if (getTileUnder().getId() == Tile.SWAMP.getId()) {
+				if (tickCount % 60 < 15) {
+					waterColor = Colors.get(-1, -1, 254, -1);
+				} else if (15 <= tickCount % 60 && tickCount % 60 < 30) {
+					yOffset -= 1;
+					waterColor = Colors.get(-1, 254, 243, -1);
+				} else if (30 <= tickCount % 60 && tickCount % 60 < 45) {
+					waterColor = Colors.get(-1, 243, -1, 254);
+				} else {
+					yOffset -= 1;
+					waterColor = Colors.get(-1, 254, 243, -1);
+				}
+			}
+			screen.render(xOffset, yOffset + 3, 5 * 32 + 3, waterColor, 0x00, 1);
+			screen.render(xOffset + 8, yOffset + 3, 5 * 32 + 3, waterColor,
+					0x01, 1);
+		}
+
 		if (display) {
 			screen.render(xOffset, yOffset, xTile + yTile * 32, color, 0x00,
 					scale);
 			screen.render(xOffset + modifier, yOffset,
 					(xTile + 1) + yTile * 32, color, 0x00, scale);
-
-			screen.render(xOffset, yOffset + modifier,
-					xTile + (yTile + 1) * 32, color, 0x00, scale);
-			screen.render(xOffset + modifier, yOffset + modifier, (xTile + 1)
-					+ (yTile + 1) * 32, color, 0x00, scale);
+			if (!isSwimming) {
+				screen.render(xOffset, yOffset + modifier, xTile + (yTile + 1)
+						* 32, color, 0x00, scale);
+				screen.render(xOffset + modifier, yOffset + modifier,
+						(xTile + 1) + (yTile + 1) * 32, color, 0x00, scale);
+			}
 		}
 
-//		for (int i = 0; i < maxHealth; i++) {
-//			int color;
-//			if (i < health) {
-//				color = Colors.get(-1, -1, 400, 400);
-//				if (!display)
-//					color = Colors.get(-1, -1, 555, 400);
-//			} else {
-//				color = Colors.get(-1, -1, 222, 222);
-//				if (!display)
-//					color = Colors.get(-1, -1, 555, 222);
-//			}
-//
-//			screen.render(screen.xOffset + i * 8, screen.yOffset, 32, color,
-//					0x00, 1);
-//		}
+		// for (int i = 0; i < maxHealth; i++) {
+		// int color;
+		// if (i < health) {
+		// color = Colors.get(-1, -1, 400, 400);
+		// if (!display)
+		// color = Colors.get(-1, -1, 555, 400);
+		// } else {
+		// color = Colors.get(-1, -1, 222, 222);
+		// if (!display)
+		// color = Colors.get(-1, -1, 555, 222);
+		// }
+		//
+		// screen.render(screen.xOffset + i * 8, screen.yOffset, 32, color,
+		// 0x00, 1);
+		// }
 
 		if (canHandle) {
 			screen.render(x, y - 18, 40, Colors.get(-1, 500, 440, 550), 0x00, 1);
@@ -211,15 +271,15 @@ public class Player extends Mob implements GameActionListener {
 	public boolean isActing() {
 		return isActing;
 	}
-	
+
 	public int getMaxHealth() {
 		return maxHealth;
 	}
-	
-	public int getHealth () {
+
+	public int getHealth() {
 		return health;
 	}
-	
+
 	public boolean shouldDisplay() {
 		return display;
 	}

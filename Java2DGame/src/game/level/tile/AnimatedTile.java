@@ -1,6 +1,6 @@
 package game.level.tile;
 
-public class AnimatedTile extends BasicTile {
+public class AnimatedTile extends Tile {
 
 	private int[][] animationTileCoords;
 	private int currentAnimationIndex;
@@ -17,6 +17,7 @@ public class AnimatedTile extends BasicTile {
 		this.animationSwitchDelay = animationSwitchDelay;
 	}
 
+	@Override
 	public void tick() {
 		if ((System.currentTimeMillis() - lastIterationTime) >= animationSwitchDelay) {
 			lastIterationTime = System.currentTimeMillis();
