@@ -31,8 +31,12 @@ public class Level {
 	}
 
 	public void tick() {
-		for (Entity e : entities) {
-			e.tick();
+		/*for (Entity e : entities) {
+			if (e != null)
+				e.tick();
+		}*/
+		for(int i = 0; i < entities.size(); i++) {
+			entities.get(i).tick();
 		}
 
 		for (Tile t : Tile.tiles) {
@@ -122,8 +126,9 @@ public class Level {
 				tileCheck: for (Tile t : Tile.tiles) {
 					if (t != null
 							&& t.getLevelColor() == tileColors[x + y * width]) {
-						if(t.isParent() && rand.nextInt(100) < 8) {
-							this.tiles[x + y * width] = t.getChildren()[rand.nextInt(t.getChildren().length)];
+						if (t.isParent() && rand.nextInt(100) < 8) {
+							this.tiles[x + y * width] = t.getChildren()[rand
+									.nextInt(t.getChildren().length)];
 						} else {
 							this.tiles[x + y * width] = t.getId();
 						}
@@ -132,10 +137,32 @@ public class Level {
 				}
 			}
 		}
-		
-		Game.debug(DebugLevel.INFO, "Level loaded in " + (System.currentTimeMillis() - time));
+
+		Game.debug(DebugLevel.INFO,
+				"Level loaded in " + (System.currentTimeMillis() - time));
 	}
-	
+
+	public boolean removeEntity(Entity entity) {
+		entity.atEntityRemoved(this);
+		return entities.remove(entity);
+	}
+
+	public Entity[] getEntityWithin(int x1, int y1, int x2, int y2) {
+		ArrayList<Entity> match = new ArrayList<Entity>();
+		for (Entity e : entities) {
+			if ((e.x >= x1 && e.x < x2) && (e.y >= y1 && e.y < y2)) {
+				match.add(e);
+			}
+		}
+		Entity[] result = new Entity[match.size()];
+		int i = 0;
+		for (Entity e : match) {
+			result[i] = e;
+			i++;
+		}
+		return result;
+	}
+
 	public void setTile(byte id, int x, int y) {
 		tiles[x + y * width] = id;
 	}

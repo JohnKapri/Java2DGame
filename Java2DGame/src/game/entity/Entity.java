@@ -31,4 +31,8 @@ public abstract class Entity {
 	public void action(Player player) {
 		
 	}
+
+	public void atEntityRemoved(Level l) {
+		
+	}
 }

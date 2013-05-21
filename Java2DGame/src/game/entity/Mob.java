@@ -73,3 +73,4 @@ public abstract class Mob extends Entity {
 		return name;
 	}
 }
+

@@ -20,6 +20,7 @@ public class Player extends Mob implements GameActionListener {
 	private int health;
 	private int maxHealth = 5;
 	private int color = Colors.get(-1, 222, 145, 543);
+	//private int color = Colors.get(-1, 222, 400, 543);
 	private int hurtTime = 0;
 	private boolean gameOver = true;
 	private boolean display = true;
@@ -289,5 +290,13 @@ public class Player extends Mob implements GameActionListener {
 			gameOver = false;
 			game.showGui(new GuiPause(game, Game.WIDTH, Game.HEIGHT));
 		}
+	}
+
+	public boolean heal(int i, Entity e) {
+		if(health + i <= maxHealth) {
+			health += i;
+			return true;
+		}
+		return false;
 	}
 }

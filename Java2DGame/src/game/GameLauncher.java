@@ -49,6 +49,6 @@ public class GameLauncher extends Applet{
 
 		game.start();
 		
-		game.debug(Game.DebugLevel.INFO, "Game startet");
+		Game.debug(Game.DebugLevel.INFO, "Game startet");
 	}
 }
