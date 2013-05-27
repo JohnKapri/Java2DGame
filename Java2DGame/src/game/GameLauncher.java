@@ -2,6 +2,7 @@ package game;
 
 import java.applet.Applet;
 import java.awt.BorderLayout;
+import java.io.File;
 
 import javax.swing.JFrame;
 
@@ -21,7 +22,9 @@ public class GameLauncher extends Applet{
 		add(game, BorderLayout.CENTER);
 		this.setMinimumSize(Game.DIMENSIONS);
 		this.setMaximumSize(Game.DIMENSIONS);
-		this.setPreferredSize(Game.DIMENSIONS);		
+		this.setPreferredSize(Game.DIMENSIONS);	
+		
+		Game.homeDir = System.getProperty("user.home") + File.separator + ".graverobber" + File.separator;
 	}
 	
 	@Override
@@ -46,8 +49,12 @@ public class GameLauncher extends Applet{
 		game.frame.setLocationRelativeTo(null);
 		game.frame.setVisible(true);
 		game.frame.requestFocus();
+		
+		Game.homeDir = System.getProperty("user.home") + File.separator + ".graverobber" + File.separator;
 
 		game.start();
+		
+		//System.out.println(GlobalBounds.doBoundsCollide(new GlobalBounds(140, 100, 8), new GlobalBounds(148, 100, 8)));
 		
 		Game.debug(Game.DebugLevel.INFO, "Game startet");
 	}

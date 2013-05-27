@@ -19,7 +19,7 @@ public class GlobalBounds {
 	}
 	
 	public GlobalBounds (int x, int y, LocalBounds bounds) {
-		this(x, y, x + bounds.width, y + bounds.height);
+		this(x + bounds.xOffset, y + bounds.yOffset, x + bounds.width + bounds.xOffset, y + bounds.height + bounds.yOffset);
 	}
 	
 	public boolean doesCollideWith(GlobalBounds bounds) {
@@ -27,7 +27,19 @@ public class GlobalBounds {
 	}
 	
 	public static boolean doBoundsCollide(GlobalBounds b1, GlobalBounds b2) {
-		//if(gba.x + )
+		int ax1 = b1.x;
+		int ax2 = b1.x1;
+		int bx1 = b2.x;
+		int bx2 = b2.x1;
+		
+		int ay1 = b1.y;
+		int ay2 = b1.y1;
+		int by1 = b2.y;
+		int by2 = b2.y1;
+		
+		if(((ax1 >= bx1 && ax1 < bx2) || (ax2 >= bx1 && ax2 < bx2)) && ((ay1 >= by1 && ay1 < by2) || (ay2 >= by1 && ay2 < by2))) {
+			return true;
+		}
 		return false;
 	}
 }

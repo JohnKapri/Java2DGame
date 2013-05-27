@@ -14,6 +14,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.File;
 
 import javax.swing.JFrame;
 
@@ -21,9 +22,9 @@ public class Game extends Canvas implements Runnable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final int WIDTH = 180;
+	public static final int WIDTH = 240;
 	public static final int HEIGHT = WIDTH / 12 * 9;
-	public static final int SCALE = 3;
+	public static final int SCALE = 2;
 	public static final String NAME = "Game";
 	public static final Dimension DIMENSIONS = new Dimension(WIDTH * SCALE,
 			HEIGHT * SCALE);
@@ -51,7 +52,16 @@ public class Game extends Canvas implements Runnable {
 	private boolean isGamePaused;
 	public static boolean DEBUG = true;
 
+	public static String homeDir;
+
 	public void init() {
+		File f = new File(Game.homeDir);
+		Game.debug(Game.DebugLevel.INFO, "Game directory set to "
+				+ Game.homeDir);
+		if (!f.exists()) {
+			f.mkdir();
+			Game.debug(Game.DebugLevel.INFO, "Directory created!");
+		}
 		int index = 0;
 		for (int r = 0; r < 6; r++) {
 			for (int g = 0; g < 6; g++) {
@@ -110,7 +120,8 @@ public class Game extends Canvas implements Runnable {
 
 			if (System.currentTimeMillis() - lastTimer >= 1000) {
 				lastTimer += 1000;
-				debug(DebugLevel.INFO, framesPS + " frames, " + ticksPS + " ticks");
+				debug(DebugLevel.INFO, framesPS + " frames, " + ticksPS
+						+ " ticks");
 				framesPS = 0;
 				ticksPS = 0;
 			}
@@ -225,22 +236,22 @@ public class Game extends Canvas implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void debug(DebugLevel level, String msg) {
-		switch(level) {
+		switch (level) {
 		default:
 		case INFO:
-			if(Game.DEBUG) {
+			if (Game.DEBUG) {
 				System.out.println("[" + NAME + "] " + msg);
 			}
 			break;
 		case WARNING:
-			if(Game.DEBUG) {
+			if (Game.DEBUG) {
 				System.out.println("[" + NAME + "] WARNING: " + msg);
 			}
 			break;
 		case ERROR:
-			if(Game.DEBUG) {
+			if (Game.DEBUG) {
 				System.out.println("[" + NAME + "] CRIT. ERROR: " + msg);
 				System.out.println("System forced to exit!");
 			}

@@ -5,8 +5,8 @@ import game.entity.Player;
 
 public class ItemSword extends Item{
 
-	public ItemSword(int id, int tile, int color) {
-		super(id, tile, color);
+	public ItemSword(int id, String name, int tile, int color) {
+		super(id, name, tile, color);
 	}
 
 	@Override

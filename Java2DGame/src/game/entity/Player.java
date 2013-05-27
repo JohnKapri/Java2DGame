@@ -9,7 +9,9 @@ import game.gfx.Screen;
 import game.gui.GuiDead;
 import game.gui.GuiHUD;
 import game.gui.GuiPause;
+import game.level.GlobalBounds;
 import game.level.Level;
+import game.level.LocalBounds;
 import game.level.tile.Tile;
 
 public class Player extends Mob implements GameActionListener {
@@ -17,16 +19,19 @@ public class Player extends Mob implements GameActionListener {
 	private InputHandler input;
 	private Level level;
 	private Game game;
+	private LocalBounds bounds;
 	private int health;
 	private int maxHealth = 5;
 	private int color = Colors.get(-1, 222, 145, 543);
-	//private int color = Colors.get(-1, 222, 400, 543);
+	// private int color = Colors.get(-1, 222, 400, 543);
 	private int hurtTime = 0;
 	private boolean gameOver = true;
 	private boolean display = true;
 	private int walkAnimStat = 0;
 	private boolean canHandle = false;
 	private boolean isActing = false;
+	private boolean showHeart = false;
+	private int heartDisplayTime = 0;
 	private Entity performActionOn = null;
 
 	public Player(Game game, Level level, int x, int y, InputHandler input) {
@@ -34,6 +39,7 @@ public class Player extends Mob implements GameActionListener {
 		input.addListener(this);
 		this.level = level;
 		this.game = game;
+		this.bounds = new LocalBounds(8, 4, 4, 12);
 		health = 3;
 		this.input = input;
 		this.renderLayer = 3;
@@ -128,7 +134,7 @@ public class Player extends Mob implements GameActionListener {
 				isSwimming = false;
 			}
 		}
-		
+
 		getTileUnder().applyPlayerModifier(this);
 
 		// **Old friction stuff
@@ -169,6 +175,13 @@ public class Player extends Mob implements GameActionListener {
 
 		if (health <= 0) {
 			color = Colors.get(-1, 222, 145, 232);
+		}
+
+		if (heartDisplayTime > 0) {
+			heartDisplayTime--;
+			if (heartDisplayTime % 5 == 0) {
+				showHeart = !showHeart;
+			}
 		}
 	}
 
@@ -248,6 +261,10 @@ public class Player extends Mob implements GameActionListener {
 			screen.render(x, y - 18, 40, Colors.get(-1, 500, 440, 550), 0x00, 1);
 		}
 
+		if (showHeart) {
+			screen.render(x, y - 18, 32, Colors.get(-1, -1, 300, 510), 0x00, 1);
+		}
+
 		if (gameOver)
 			Font.drawCenteredString("Press <ESC> for menu", screen, 1,
 					screen.xOffset + screen.width / 2, screen.yOffset
@@ -280,6 +297,10 @@ public class Player extends Mob implements GameActionListener {
 	public int getHealth() {
 		return health;
 	}
+	
+	public GlobalBounds getGlobalBounds() {
+		return new GlobalBounds(x, y, bounds);
+	}
 
 	public boolean shouldDisplay() {
 		return display;
@@ -293,8 +314,11 @@ public class Player extends Mob implements GameActionListener {
 	}
 
 	public boolean heal(int i, Entity e) {
-		if(health + i <= maxHealth) {
+		if (health + i <= maxHealth) {
 			health += i;
+			if(e instanceof Heart) {
+				heartDisplayTime = 40;
+			}
 			return true;
 		}
 		return false;
