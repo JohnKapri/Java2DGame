@@ -18,11 +18,11 @@ public class GameLauncher extends Applet{
 	
 	@Override
 	public void init() {
-		setLayout(new BorderLayout());
-		add(game, BorderLayout.CENTER);
 		this.setMinimumSize(Game.DIMENSIONS);
 		this.setMaximumSize(Game.DIMENSIONS);
 		this.setPreferredSize(Game.DIMENSIONS);	
+		setLayout(new BorderLayout());
+		add(game, BorderLayout.CENTER);
 		
 		Game.homeDir = System.getProperty("user.home") + File.separator + ".graverobber" + File.separator;
 	}

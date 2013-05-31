@@ -18,24 +18,26 @@ import javax.imageio.ImageIO;
 public class Level {
 
 	private byte[] tiles;
-	public int width;
-	public int height;
-	public List<Entity> entities = new ArrayList<Entity>();
+	private int width;
+	private int height;
+	private String name;
+	private String nextLevel;
+	private List<Entity> entities = new ArrayList<Entity>();
 
 	private String filePath;
 	private BufferedImage image;
 
 	private static Random rand = new Random();
 
-	public Level() {
+	public Level(String name, int width, int height) {
+		this.name = name;
+		this.width = width;
+		this.height = height;
+		this.tiles = new byte[width * height];
 	}
 
 	public void tick() {
-		/*for (Entity e : entities) {
-			if (e != null)
-				e.tick();
-		}*/
-		for(int i = 0; i < entities.size(); i++) {
+		for (int i = 0; i < entities.size(); i++) {
 			entities.get(i).tick();
 		}
 
@@ -163,6 +165,22 @@ public class Level {
 		return result;
 	}
 
+	public byte[] getTileIdArray() {
+		return tiles;
+	}
+
+	public void setTiles(byte[] t) {
+		if (t.length == width * height) {
+			for (int i = 0; i < t.length; i++) {
+				tiles[i] = t[i];
+			}
+		} else {
+			Game.debug(DebugLevel.ERROR,
+					"Level file corrupted! Failed to load level \"" + name
+							+ "\"!");
+		}
+	}
+
 	public void setTile(byte id, int x, int y) {
 		tiles[x + y * width] = id;
 	}
@@ -175,5 +193,25 @@ public class Level {
 
 	public void addEntity(Entity eintity) {
 		entities.add(eintity);
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getNextLevelName() {
+		return nextLevel;
+	}
+
+	public void setNextLevel(String nextLevel) {
+		this.nextLevel = nextLevel;
 	}
 }

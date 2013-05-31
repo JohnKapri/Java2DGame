@@ -23,9 +23,7 @@ public class Player extends Mob implements GameActionListener {
 	private int health;
 	private int maxHealth = 5;
 	private int color = Colors.get(-1, 222, 145, 543);
-	// private int color = Colors.get(-1, 222, 400, 543);
 	private int hurtTime = 0;
-	private boolean gameOver = true;
 	private boolean display = true;
 	private int walkAnimStat = 0;
 	private boolean canHandle = false;
@@ -137,40 +135,8 @@ public class Player extends Mob implements GameActionListener {
 
 		getTileUnder().applyPlayerModifier(this);
 
-		// **Old friction stuff
-		// if (getTileUnder().getId() == Tile.SWAMP.getId()) {
-		// this.friction = 3;
-		// } else {
-		// this.friction = 1;
-		// }
-
-		// **Old get hurt stuff
-		// if (level.getTile((x - 4) / 8, (y - 4) / 8).getId() == Tile.SPIKES
-		// .getId()
-		// || level.getTile((x + 4) / 8, (y + 4) / 8).getId() == Tile.SPIKES
-		// .getId()
-		// || level.getTile((x - 4) / 8, (y + 4) / 8).getId() == Tile.SPIKES
-		// .getId()
-		// || level.getTile((x + 4) / 8, (y - 4) / 8).getId() == Tile.SPIKES
-		// .getId())
-		// hurt();
-
 		if (getTileUnder().getId() == Tile.SPIKES.getId()) {
 			hurt();
-		}
-
-		for (int i = 0; i < level.entities.size(); i++) {
-			Entity e = level.entities.get(i);
-			if (e.x > this.x - 8 && e.x < this.x + 8 && e.y > this.y - 8
-					&& e.y < this.y + 8) {
-				if (e instanceof Chest) {
-					canHandle = true;
-					performActionOn = e;
-				} else {
-					canHandle = false;
-					performActionOn = null;
-				}
-			}
 		}
 
 		if (health <= 0) {
@@ -241,22 +207,6 @@ public class Player extends Mob implements GameActionListener {
 			}
 		}
 
-		// for (int i = 0; i < maxHealth; i++) {
-		// int color;
-		// if (i < health) {
-		// color = Colors.get(-1, -1, 400, 400);
-		// if (!display)
-		// color = Colors.get(-1, -1, 555, 400);
-		// } else {
-		// color = Colors.get(-1, -1, 222, 222);
-		// if (!display)
-		// color = Colors.get(-1, -1, 555, 222);
-		// }
-		//
-		// screen.render(screen.xOffset + i * 8, screen.yOffset, 32, color,
-		// 0x00, 1);
-		// }
-
 		if (canHandle) {
 			screen.render(x, y - 18, 40, Colors.get(-1, 500, 440, 550), 0x00, 1);
 		}
@@ -264,12 +214,6 @@ public class Player extends Mob implements GameActionListener {
 		if (showHeart) {
 			screen.render(x, y - 18, 32, Colors.get(-1, -1, 300, 510), 0x00, 1);
 		}
-
-		if (gameOver)
-			Font.drawCenteredString("Press <ESC> for menu", screen, 1,
-					screen.xOffset + screen.width / 2, screen.yOffset
-							+ screen.height / 2 - 4,
-					Colors.get(-1, -1, -1, 000), 1);
 	}
 
 	public void hurt() {
@@ -308,7 +252,6 @@ public class Player extends Mob implements GameActionListener {
 
 	public void actionPerformed(InputHandler input) {
 		if (input.esc.gotPressed()) {
-			gameOver = false;
 			game.showGui(new GuiPause(game, Game.WIDTH, Game.HEIGHT));
 		}
 	}

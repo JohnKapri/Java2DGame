@@ -39,7 +39,7 @@ public class GuiMainMenu extends Gui {
 		if (elementId == list.getId()) {
 			switch (action) {
 			case 0:
-				game.setLevel("/levels/tile_test.png");
+				game.setLevel("tile_test");
 				game.player = new Player(game, game.level, 32, 32, game.input);
 				game.level.addEntity(game.player);
 				game.level.addEntity(new Heart(game.level, 25*8, 30*8));

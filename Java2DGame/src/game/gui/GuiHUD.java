@@ -32,7 +32,7 @@ public class GuiHUD extends Gui{
 					color = Colors.get(-1, -1, 555, 222);
 			}
 
-			GuiRenderer.render(this, font, 2 + i * 8, 2, 32, color,
+			GuiRenderer.render(this, font, 2 + i * 16, 2, 32, color,
 					0x00, 2);
 		}
 	}

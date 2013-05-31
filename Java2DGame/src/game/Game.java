@@ -6,6 +6,7 @@ import game.gfx.SpriteSheet;
 import game.gui.Gui;
 import game.gui.GuiMainMenu;
 import game.level.Level;
+import game.level.LevelLoader;
 
 import java.awt.Canvas;
 import java.awt.Color;
@@ -18,9 +19,8 @@ import java.io.File;
 
 import javax.swing.JFrame;
 
+@SuppressWarnings("serial")
 public class Game extends Canvas implements Runnable {
-
-	private static final long serialVersionUID = 1L;
 
 	public static final int WIDTH = 240;
 	public static final int HEIGHT = WIDTH / 12 * 9;
@@ -79,6 +79,10 @@ public class Game extends Canvas implements Runnable {
 		input = new InputHandler(this);
 
 		gui = new GuiMainMenu(this, WIDTH, HEIGHT);
+		
+		Level level = new Level("generic", 0, 0);
+		level.loadLevelFromFile("/levels/tile_test.png");
+//		LevelLoader.writeLevelToNBT(level);
 	}
 
 	public void run() {
@@ -207,8 +211,9 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	public void setLevel(String path) {
-		this.level = new Level();
-		this.level.loadLevelFromFile(path);
+		//this.level = new Level();
+		level = LevelLoader.readLevelFromNBT(path);
+		//this.level.loadLevelFromFile(path);
 	}
 
 	public void showGui(Gui gui) {
