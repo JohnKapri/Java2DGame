@@ -4,6 +4,7 @@ import game.entity.Player;
 import game.gfx.Screen;
 import game.gfx.SpriteSheet;
 import game.gui.Gui;
+import game.gui.GuiFocus;
 import game.gui.GuiMainMenu;
 import game.level.Level;
 import game.level.LevelLoader;
@@ -12,6 +13,8 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -19,9 +22,11 @@ import java.io.File;
 
 import javax.swing.JFrame;
 
-@SuppressWarnings("serial")
-public class Game extends Canvas implements Runnable {
 
+public class Game extends Canvas implements Runnable, FocusListener {
+
+	private static final long serialVersionUID = 1L;
+	
 	public static final int WIDTH = 240;
 	public static final int HEIGHT = WIDTH / 12 * 9;
 	public static final int SCALE = 2;
@@ -50,6 +55,11 @@ public class Game extends Canvas implements Runnable {
 	public Gui hud;
 
 	private boolean isGamePaused;
+	public static boolean isApplet = false;
+	public boolean isFocused = true;
+
+	public boolean debug;
+
 	public static boolean DEBUG = true;
 
 	public static String homeDir;
@@ -61,6 +71,9 @@ public class Game extends Canvas implements Runnable {
 		if (!f.exists()) {
 			f.mkdir();
 			Game.debug(Game.DebugLevel.INFO, "Directory created!");
+		}
+		if (isApplet) {
+			addFocusListener(this);
 		}
 		int index = 0;
 		for (int r = 0; r < 6; r++) {
@@ -79,10 +92,13 @@ public class Game extends Canvas implements Runnable {
 		input = new InputHandler(this);
 
 		gui = new GuiMainMenu(this, WIDTH, HEIGHT);
-		
-		Level level = new Level("generic", 0, 0);
-		level.loadLevelFromFile("/levels/tile_test.png");
-//		LevelLoader.writeLevelToNBT(level);
+
+		if (!new File(homeDir, File.separator + "level" + File.separator
+				+ "tile_test.dat").exists()) {
+			Level level = new Level("tile_test", 0, 0);
+			level.loadLevelFromFile("/levels/tile_test.png");
+			LevelLoader.writeLevelToNBT(level);
+		}
 	}
 
 	public void run() {
@@ -211,9 +227,9 @@ public class Game extends Canvas implements Runnable {
 	}
 
 	public void setLevel(String path) {
-		//this.level = new Level();
+		// this.level = new Level("non", 0, 0);
 		level = LevelLoader.readLevelFromNBT(path);
-		//this.level.loadLevelFromFile(path);
+		// this.level.loadLevelFromFile(path);
 	}
 
 	public void showGui(Gui gui) {
@@ -266,5 +282,24 @@ public class Game extends Canvas implements Runnable {
 
 	public static enum DebugLevel {
 		INFO, WARNING, ERROR;
+	}
+
+	@Override
+	public void focusGained(FocusEvent arg0) {
+		isFocused = true;
+		if (gui != null && gui instanceof GuiFocus) {
+			gui.closeGui();
+		}
+	}
+
+	@Override
+	public void focusLost(FocusEvent arg0) {
+		if (arg0.getID() == FocusEvent.FOCUS_LOST) {
+			isFocused = false;
+			if ((gui != null && !gui.pausesGame()) || gui == null) {
+				gui = new GuiFocus(this, Game.WIDTH, Game.HEIGHT);
+			}
+			Game.debug(DebugLevel.INFO, "Lost the focus!");
+		}
 	}
 }

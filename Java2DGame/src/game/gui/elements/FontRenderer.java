@@ -5,12 +5,12 @@ import game.gui.Gui;
 
 public class FontRenderer {
 
-	private static String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ>< "
-			+ "abcdefghijklmnopqrstuvwxyzäöü{} "
+	private static String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZï¿½ï¿½ï¿½>< "
+			+ "abcdefghijklmnopqrstuvwxyzï¿½ï¿½ï¿½{} "
 			+ "1234567890+-/*^!.,?#()=ß€$&%\"':;";
-	private static String width5 = "ABCDEFGHJLMNOPQRSTUVWXYZÄÖÜmvw234567890+-^?#€$&%{}";
-	private static String width4 = "Kabcdefghnopqrstuyzäöü/=ß\"";
-	private static String width3 = "Iktx1*><";
+	private static String width5 = "ABCDEFGHJLMNOPQRSTUVWXYZï¿½ï¿½ï¿½mvw234567890+-^?#ï¿½$&%{}";
+	private static String width4 = "Kabdefghnopqrstuyzï¿½ï¿½ï¿½/=ï¿½\"";
+	private static String width3 = "Icktx1*><";
 	private static String width2 = "jl,()'; ";
 	private static String width1 = "i!.:";
 
@@ -23,9 +23,9 @@ public class FontRenderer {
 			int charWidth = getCharWidth(msg.charAt(i));
 			if (charIndex < 0)
 				charIndex = 29;
-			GuiRenderer.render(gui, gui.font, x + textWidth + scale * 2, y, charIndex + 23 * 32, Colors.get(-1, -1, -1, color),
+			GuiRenderer.render(gui, gui.font, x + textWidth + scale * i, y, charIndex + 23 * 32, Colors.get(-1, -1, -1, color),
 					0x00, scale);
-			textWidth = textWidth + charWidth * scale + 1;
+			textWidth = textWidth + charWidth * scale;
 		}
 	}
 

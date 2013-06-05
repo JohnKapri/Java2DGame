@@ -1,8 +1,9 @@
 package game.level;
 
+
 import game.Game;
-import game.Game.DebugLevel;
 import game.Tag;
+import game.Game.DebugLevel;
 import game.level.tile.Tile;
 
 import java.awt.image.BufferedImage;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+
 
 public class LevelLoader {
 
@@ -105,8 +107,9 @@ public class LevelLoader {
 			}
 			Tag tag = new Tag(Tag.Type.TAG_Compound, "LEVEL", new Tag[] {
 					new Tag(Tag.Type.TAG_String, "NAME", level.getName()),
-					new Tag(Tag.Type.TAG_String, "NEXT_LEVEL",
-							level.getNextLevelName()),
+					//new Tag(Tag.Type.TAG_String, "NEXT_LEVEL",
+					//		level.getNextLevelName()),
+					new Tag(Tag.Type.TAG_String, "NEXT_LEVEL", "none"),
 					new Tag(Tag.Type.TAG_Int, "WIDTH", level.getWidth()),
 					new Tag(Tag.Type.TAG_Int, "HEIGHT", level.getHeight()),
 					new Tag(Tag.Type.TAG_Byte_Array, "TILES",

@@ -3,11 +3,11 @@ package game.gfx;
 
 public class Font {
 
-	private static String chars2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ>< "
-			+ "abcdefghijklmnopqrstuvwxyzäöü{} "
+	private static String chars2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZï¿½ï¿½ï¿½>< "
+			+ "abcdefghijklmnopqrstuvwxyzï¿½ï¿½ï¿½{} "
 			+ "1234567890+-/*^!.,?#()ß€$&%\"':;";
-	private static String width5 = "ABCDEFGHJLMNOPQRSTUVWXYZÄÖÜmvw234567890+-^?#€$&%{}";
-	private static String width4 = "Kabcdefghnopqrstuyzäöü/=ß\"";
+	private static String width5 = "ABCDEFGHJLMNOPQRSTUVWXYZï¿½ï¿½ï¿½mvw234567890+-^?#ï¿½$&%{}";
+	private static String width4 = "Kabcdefghnopqrstuyzï¿½ï¿½ï¿½/=ï¿½\"";
 	private static String width3 = "Iktx1*><";
 	private static String width2 = "jl,()'; ";
 	private static String width1 = "i!.:";

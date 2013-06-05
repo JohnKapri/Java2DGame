@@ -1,5 +1,6 @@
 package game.level;
 
+
 import game.Game;
 import game.Game.DebugLevel;
 import game.entity.Entity;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+
 
 public class Level {
 
@@ -64,18 +66,18 @@ public class Level {
 	public void renderTiles(Screen screen, int xOffset, int yOffset) {
 		if (xOffset < 0)
 			xOffset = 0;
-		if (xOffset > ((width << 3) - screen.width))
-			xOffset = (width << 3) - screen.width;
+		if (xOffset > ((width * 8) - screen.width))
+			xOffset = (width * 8) - screen.width;
 		if (yOffset < 0)
 			yOffset = 0;
-		if (yOffset > ((height << 3) - screen.height))
-			yOffset = (height << 3) - screen.height;
+		if (yOffset > ((height * 8) - screen.height))
+			yOffset = (height * 8) - screen.height;
 
 		screen.setOffset(xOffset, yOffset);
 
-		for (int y = (yOffset >> 3); y < (yOffset + screen.height >> 3) + 1; y++) {
-			for (int x = (xOffset >> 3); x < (xOffset + screen.width >> 3) + 1; x++) {
-				getTile(x, y).render(screen, this, x << 3, y << 3);
+		for (int y = (yOffset / 8); y < (yOffset + screen.height / 8) + 1; y++) {
+			for (int x = (xOffset / 8); x < (xOffset + screen.width / 8) + 1; x++) {
+				getTile(x, y).render(screen, this, x * 8, y * 8);
 			}
 		}
 	}
