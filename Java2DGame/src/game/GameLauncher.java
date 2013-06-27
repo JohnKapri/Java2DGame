@@ -28,6 +28,8 @@ public class GameLauncher extends Applet {
 		Game.homeDir = System.getProperty("user.home") + File.separator
 				+ ".graverobber" + File.separator;
 		Game.isApplet = true;
+		
+		Game.instance = game;
 	}
 
 	@Override
@@ -52,11 +54,15 @@ public class GameLauncher extends Applet {
 		game.frame.setLocationRelativeTo(null);
 		game.frame.setVisible(true);
 		game.frame.requestFocus();
+		
+		game.requestFocus();
 
 		Game.homeDir = System.getProperty("user.home") + File.separator
 				+ ".graverobber" + File.separator;
 
 		game.start();
+		
+		Game.instance = game;
 
 		// System.out.println(GlobalBounds.doBoundsCollide(new GlobalBounds(140,
 		// 100, 8), new GlobalBounds(148, 100, 8)));

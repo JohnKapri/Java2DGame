@@ -14,18 +14,12 @@ public class Chest extends Entity{
 	Player actingPlayer;
 	
 	public Chest(Level level, int x, int y, InputHandler input) {
-		super(level);
-		this.x = x;
-		this.y = y;
+		super(level, x, y);
 		this.input = input;
 	}
 
 	public void tick() {
-		if(input.esc.isPressed() && showInv) {
-			showInv = false;
-			actingPlayer.setActing(false);
-			actingPlayer = null;
-		}
+
 	}
 
 	public void render(Screen screen) {

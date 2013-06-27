@@ -1,7 +1,7 @@
 package game.gui;
 
 import game.Game;
-import game.InputHandler;
+import game.InputHandler.InputEvent;
 import game.gui.elements.FontRenderer;
 
 public class GuiFocus extends Gui {
@@ -12,7 +12,7 @@ public class GuiFocus extends Gui {
 	}
 
 	@Override
-	public void actionPerformed(InputHandler input) {
+	public void actionPerformed(InputEvent event) {
 
 	}
 

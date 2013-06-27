@@ -2,6 +2,7 @@ package game.gui;
 
 import game.Game;
 import game.InputHandler;
+import game.InputHandler.InputEvent;
 import game.entity.Player;
 import game.gui.elements.ChooseList;
 import game.gui.elements.FontRenderer;
@@ -33,20 +34,15 @@ public class GuiDead extends Gui {
 
 	}
 
-	public void actionPerformed(InputHandler input) {
-		list.actionPerformed(input);
+	public void actionPerformed(InputEvent event) {
+		list.actionPerformed(event);
 	}
 
 	public void guiActionPerformed(int elementId, int action) {
 		if (elementId == list.getId()) {
 			switch (action) {
 			case 0:
-				System.out.println("Retry");
-				game.player = null;
-				game.level = null;
-				game.setLevel("/levels/test3.png");
-				game.player = new Player(game, game.level, 30, 30, game.input);
-				game.level.addEntity(game.player);
+				System.out.println("Reload");
 				closeGui();
 				break;
 			case 1:

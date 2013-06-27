@@ -1,4 +1,6 @@
-package game.item;
+package game.gui.elements;
+
+import game.item.Item;
 
 public class ItemSlot {
 

@@ -3,6 +3,8 @@ package game.gui.elements;
 
 import game.InputHandler;
 import game.InputHandler.GameActionListener;
+import game.InputHandler.InputEvent;
+import game.InputHandler.InputEventType;
 import game.gui.Gui;
 
 import java.util.ArrayList;
@@ -16,12 +18,14 @@ public class ChooseList extends GuiElement implements GameActionListener {
 	private List<Option> options = new ArrayList<Option>();
 	private int selectedEntry;
 	public int scrol;
+	private InputHandler input;
 
 	private int width;
 	private int height;
 
 	public ChooseList(int id, Gui gui) {
 		super(id, gui);
+		input = gui.input;
 	}
 
 	public void addOption(Option option) {
@@ -53,11 +57,13 @@ public class ChooseList extends GuiElement implements GameActionListener {
 		}
 	}
 
-	public void actionPerformed(InputHandler input) {
-		if (input.down.gotPressed()) {
+	public void actionPerformed(InputEvent event) {
+		if (event.key.id == input.down.id
+				&& event.type == InputEventType.PRESSED) {
 			selectedEntry++;
 		}
-		if (input.up.gotPressed()) {
+		if (event.key.id == input.up.id
+				&& event.type == InputEventType.PRESSED) {
 			selectedEntry--;
 		}
 		if (selectedEntry < 0) {
@@ -66,10 +72,12 @@ public class ChooseList extends GuiElement implements GameActionListener {
 		if (selectedEntry >= options.size()) {
 			selectedEntry = options.size() - 1;
 		}
-		if (input.action.gotPressed()) {
+		if (event.key.id == input.action.id
+				&& event.type == InputEventType.PRESSED) {
 			parent.guiActionPerformed(id, selectedEntry);
 		}
-		if (input.esc.gotPressed()) {
+		if (event.key.id == input.esc.id
+				&& event.type == InputEventType.PRESSED) {
 			parent.guiActionPerformed(id, -1);
 		}
 		if (selectedEntry >= ENTRIES_DISPLAYED) {

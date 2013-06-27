@@ -22,7 +22,7 @@ public class GameApplet extends Applet {
         game.debug = DEBUG;
 		Game.homeDir = System.getProperty("user.home") + File.separator
 				+ ".graverobber" + File.separator;
-        game.isApplet = true;
+        Game.isApplet = true;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package game.gui.elements;
 
-import game.InputHandler;
+import game.InputHandler.InputEvent;
 import game.gui.Gui;
 import game.item.Item;
 
@@ -17,7 +17,7 @@ public class GuiItemSlot extends GuiElement {
 	}
 
 	@Override
-	public void actionPerformed(InputHandler input) {
+	public void actionPerformed(InputEvent event) {
 
 	}
 	

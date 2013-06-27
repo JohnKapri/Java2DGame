@@ -6,8 +6,9 @@ import game.gfx.SpriteSheet;
 import game.gui.Gui;
 import game.gui.GuiFocus;
 import game.gui.GuiMainMenu;
+import game.gui.GuiPause;
 import game.level.Level;
-import game.level.LevelLoader;
+import game.level.World;
 
 import java.awt.Canvas;
 import java.awt.Color;
@@ -22,11 +23,10 @@ import java.io.File;
 
 import javax.swing.JFrame;
 
-
 public class Game extends Canvas implements Runnable, FocusListener {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public static final int WIDTH = 240;
 	public static final int HEIGHT = WIDTH / 12 * 9;
 	public static final int SCALE = 2;
@@ -51,7 +51,7 @@ public class Game extends Canvas implements Runnable, FocusListener {
 
 	public Level level;
 	public Player player;
-	public Gui gui;
+	private Gui gui;
 	public Gui hud;
 
 	private boolean isGamePaused;
@@ -62,7 +62,10 @@ public class Game extends Canvas implements Runnable, FocusListener {
 
 	public static boolean DEBUG = true;
 
+	public static Game instance;
 	public static String homeDir;
+
+	public World world;
 
 	public void init() {
 		File f = new File(Game.homeDir);
@@ -72,9 +75,7 @@ public class Game extends Canvas implements Runnable, FocusListener {
 			f.mkdir();
 			Game.debug(Game.DebugLevel.INFO, "Directory created!");
 		}
-		if (isApplet) {
-			addFocusListener(this);
-		}
+		addFocusListener(this);
 		int index = 0;
 		for (int r = 0; r < 6; r++) {
 			for (int g = 0; g < 6; g++) {
@@ -93,12 +94,12 @@ public class Game extends Canvas implements Runnable, FocusListener {
 
 		gui = new GuiMainMenu(this, WIDTH, HEIGHT);
 
-		if (!new File(homeDir, File.separator + "level" + File.separator
-				+ "tile_test.dat").exists()) {
-			Level level = new Level("tile_test", 0, 0);
-			level.loadLevelFromFile("/levels/tile_test.png");
-			LevelLoader.writeLevelToNBT(level);
-		}
+		/*
+		 * if (!new File(homeDir, File.separator + "level" + File.separator +
+		 * "tile_test.dat").exists()) { Level level = new Level("tile_test", 0,
+		 * 0); level.loadLevelFromFile("/levels/tile_test.png");
+		 * LevelLoader.writeLevelToNBT(level); }
+		 */
 	}
 
 	public void run() {
@@ -226,20 +227,32 @@ public class Game extends Canvas implements Runnable, FocusListener {
 		bs.show();
 	}
 
+	// TODO Rewrite this to fit the new format.
 	public void setLevel(String path) {
 		// this.level = new Level("non", 0, 0);
-		level = LevelLoader.readLevelFromNBT(path);
+		// level = LevelLoader.readLevelFromNBT(path);
 		// this.level.loadLevelFromFile(path);
 	}
 
+	/**
+	 * Opens a GUI to display.
+	 * 
+	 * @param gui
+	 *            The GUI that should be displayed. Usually a new instace.
+	 */
 	public void showGui(Gui gui) {
-		if (this.gui == null) {
-			this.gui = gui;
-		}
+		this.gui = null;
+		this.gui = gui;
 	}
 
-	public void hideGui() {
-		this.gui = null;
+	/**
+	 * Closes the currently displayed GUI.
+	 */
+	public void hideGui(Gui gui) {
+		input.removeListener(gui);
+		if (this.gui == gui) {
+			this.gui = null;
+		}
 	}
 
 	public synchronized void start() {
@@ -258,6 +271,15 @@ public class Game extends Canvas implements Runnable, FocusListener {
 		}
 	}
 
+	/**
+	 * Sends a debug message to the console.
+	 * 
+	 * @param level
+	 *            The debug level (what type of message, "INFO", "WARNING",
+	 *            "ERROR")
+	 * @param msg
+	 *            The text to output.
+	 */
 	public static void debug(DebugLevel level, String msg) {
 		switch (level) {
 		default:
@@ -273,13 +295,20 @@ public class Game extends Canvas implements Runnable, FocusListener {
 			break;
 		case ERROR:
 			if (Game.DEBUG) {
-				System.out.println("[" + NAME + "] CRIT. ERROR: " + msg);
+				System.out.println("[" + NAME + "] CRITICAL ERROR: " + msg);
 				System.out.println("System forced to exit!");
 			}
 			break;
 		}
 	}
 
+	/**
+	 * A list of debug levels. If something isn't performing as expected but is
+	 * not critical for the runtime. ERROR: Something bad happened and the game
+	 * can no longer run.
+	 * 
+	 * @author John Kapri INFO: Some information useful for programmers WARNING:
+	 */
 	public static enum DebugLevel {
 		INFO, WARNING, ERROR;
 	}
@@ -295,9 +324,15 @@ public class Game extends Canvas implements Runnable, FocusListener {
 	@Override
 	public void focusLost(FocusEvent arg0) {
 		if (arg0.getID() == FocusEvent.FOCUS_LOST) {
-			isFocused = false;
-			if ((gui != null && !gui.pausesGame()) || gui == null) {
-				gui = new GuiFocus(this, Game.WIDTH, Game.HEIGHT);
+			if (isApplet) {
+				isFocused = false;
+				if ((gui != null && !gui.pausesGame()) || gui == null) {
+					gui = new GuiFocus(this, Game.WIDTH, Game.HEIGHT);
+				}
+			} else {
+				if ((gui != null && !gui.pausesGame()) || gui == null) {
+					gui = new GuiPause(this, Game.WIDTH, Game.HEIGHT);
+				}
 			}
 			Game.debug(DebugLevel.INFO, "Lost the focus!");
 		}

@@ -1,7 +1,7 @@
 package game.gui;
 
 import game.Game;
-import game.InputHandler;
+import game.InputHandler.InputEvent;
 import game.gui.elements.ChooseList;
 import game.gui.elements.FontRenderer;
 
@@ -15,12 +15,13 @@ public class GuiPause extends Gui{
 		this.pauseGame = true;
 		list = new ChooseList(0, this);
 		list.addOption(list.new Option(0, "Resume"));
-		list.addOption(list.new Option(1, "Options"));
-		list.addOption(list.new Option(2, "Exit"));
+		list.addOption(list.new Option(1, "Save"));
+		list.addOption(list.new Option(2, "Options"));
+		list.addOption(list.new Option(3, "Exit"));
 	}
 
-	public void actionPerformed(InputHandler input) {
-		list.actionPerformed(input);
+	public void actionPerformed(InputEvent event) {
+		list.actionPerformed(event);
 	}
 
 	public void render() {
@@ -41,9 +42,13 @@ public class GuiPause extends Gui{
 				closeGui();
 				break;
 			case 1:
-				splash = "Nope! Still no options.";
+				game.world.saveToFile();
+				closeGui();
 				break;
 			case 2:
+				splash = "Nope! Still no options.";
+				break;
+			case 3:
 				System.out.println("The game has been quit!");
 				closeGui();
 				System.exit(0);

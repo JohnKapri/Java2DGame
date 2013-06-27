@@ -1,7 +1,6 @@
 package game.gui.elements;
 
 import game.item.Item;
-import game.item.ItemSlot;
 
 public class GuiContainer{
 

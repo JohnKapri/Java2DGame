@@ -10,9 +10,7 @@ public class Heart extends Entity {
 	private boolean animDecr;
 
 	public Heart(Level level, int x, int y) {
-		super(level);
-		this.x = x;
-		this.y = y;
+		super(level, x, y);
 	}
 
 	@Override

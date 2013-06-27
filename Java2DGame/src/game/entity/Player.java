@@ -3,22 +3,25 @@ package game.entity;
 import game.Game;
 import game.InputHandler;
 import game.InputHandler.GameActionListener;
+import game.InputHandler.InputEvent;
+import game.InputHandler.InputEventType;
+import game.Tag;
 import game.gfx.Colors;
-import game.gfx.Font;
 import game.gfx.Screen;
 import game.gui.GuiDead;
 import game.gui.GuiHUD;
 import game.gui.GuiPause;
+import game.item.Inventory;
 import game.level.GlobalBounds;
-import game.level.Level;
 import game.level.LocalBounds;
+import game.level.NBTCapable;
 import game.level.tile.Tile;
 
-public class Player extends Mob implements GameActionListener {
+public class Player extends Mob implements GameActionListener, NBTCapable {
 
 	private InputHandler input;
-	private Level level;
 	private Game game;
+	private Inventory inventory;
 	private LocalBounds bounds;
 	private int health;
 	private int maxHealth = 5;
@@ -32,18 +35,34 @@ public class Player extends Mob implements GameActionListener {
 	private int heartDisplayTime = 0;
 	private Entity performActionOn = null;
 
-	public Player(Game game, Level level, int x, int y, InputHandler input) {
-		super(level, "Player", x, y, 1);
-		input.addListener(this);
-		this.level = level;
+	public Player(Game game, String name, int x, int y) {
+		super(game.level, name, x, y, 1);
+		game.input.addListener(this);
 		this.game = game;
+		this.inventory = new Inventory(0, "Player Inventory", 20);
 		this.bounds = new LocalBounds(8, 4, 4, 12);
 		health = 3;
-		this.input = input;
+		this.input = game.input;
 		this.renderLayer = 3;
 		game.hud = new GuiHUD(game, this, Game.WIDTH, Game.HEIGHT);
+		this.id = 0;
 	}
 
+	public Player(Game game, Tag nbt) {
+		super(game.level, nbt);
+		this.input = game.input;
+		input.addListener(this);
+		this.loadFromNBT(nbt);
+		this.game = game;
+		this.inventory = new Inventory(0, "Player Inventory", 20);
+		this.bounds = new LocalBounds(8, 4, 4, 12);
+		this.input = game.input;
+		this.renderLayer = 3;
+		game.hud = new GuiHUD(game, this, Game.WIDTH, Game.HEIGHT);
+		this.id = 0;
+	}
+
+	@Override
 	public boolean hasCollided(int xa, int ya) {
 		int xMin = 0;
 		int xMax = 7;
@@ -74,6 +93,7 @@ public class Player extends Mob implements GameActionListener {
 		return false;
 	}
 
+	@Override
 	public void tick() {
 		super.tick();
 
@@ -98,23 +118,17 @@ public class Player extends Mob implements GameActionListener {
 		int xa = 0;
 		int ya = 0;
 
-		if (input.up.isPressed()) {
+		if (input.isKeyPressed(input.up)) {
 			ya--;
 		}
-		if (input.down.isPressed()) {
+		if (input.isKeyPressed(input.down)) {
 			ya++;
 		}
-		if (input.left.isPressed()) {
+		if (input.isKeyPressed(input.left)) {
 			xa--;
 		}
-		if (input.right.isPressed()) {
+		if (input.isKeyPressed(input.right)) {
 			xa++;
-		}
-
-		if (input.action.isPressed() && !isActing) {
-			if (performActionOn != null) {
-				performActionOn.action(this);
-			}
 		}
 
 		if (xa != 0 || ya != 0) {
@@ -151,6 +165,7 @@ public class Player extends Mob implements GameActionListener {
 		}
 	}
 
+	@Override
 	public void render(Screen screen) {
 
 		int xTile = (movingDir * 2 + walkAnimStat) * 2;
@@ -241,7 +256,11 @@ public class Player extends Mob implements GameActionListener {
 	public int getHealth() {
 		return health;
 	}
-	
+
+	public Inventory getInventory() {
+		return inventory;
+	}
+
 	public GlobalBounds getGlobalBounds() {
 		return new GlobalBounds(x, y, bounds);
 	}
@@ -250,20 +269,45 @@ public class Player extends Mob implements GameActionListener {
 		return display;
 	}
 
-	public void actionPerformed(InputHandler input) {
-		if (input.esc.gotPressed()) {
+	@Override
+	public void actionPerformed(InputEvent event) {
+		if (event.key.id == input.esc.id
+				&& event.type == InputEventType.PRESSED) {
 			game.showGui(new GuiPause(game, Game.WIDTH, Game.HEIGHT));
+		}
+		if (event.key.id == input.action.id
+				&& event.type == InputEventType.PRESSED) {
+			if (!isActing && performActionOn != null) {
+				performActionOn.action(this);
+			}
 		}
 	}
 
 	public boolean heal(int i, Entity e) {
 		if (health + i <= maxHealth) {
 			health += i;
-			if(e instanceof Heart) {
+			if (e instanceof Heart) {
 				heartDisplayTime = 40;
 			}
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public Tag saveToNBT(Tag notused) {
+		Tag tag = new Tag(Tag.Type.TAG_Compound, "PLAYER", new Tag[1]);
+		super.saveToNBT(tag);
+		tag.addTag(new Tag(Tag.Type.TAG_Int, "HEALTH", this.health));
+		tag.addTag(new Tag(Tag.Type.TAG_Int, "MAX_HEALTH", this.maxHealth));
+		tag.addTag(new Tag(Tag.Type.TAG_End, null, null));
+		return tag;
+	}
+
+	@Override
+	public void loadFromNBT(Tag tag) {
+		super.loadFromNBT(tag);
+		this.health = (int) tag.findTagByName("HEALTH").getValue();
+		this.maxHealth = (int) tag.findTagByName("MAX_HEALTH").getValue();
 	}
 }

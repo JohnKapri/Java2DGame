@@ -1,11 +1,10 @@
 package game.gui;
 
 import game.Game;
-import game.InputHandler;
-import game.entity.Heart;
-import game.entity.Player;
+import game.InputHandler.InputEvent;
 import game.gui.elements.ChooseList;
 import game.gui.elements.FontRenderer;
+import game.level.World;
 
 public class GuiMainMenu extends Gui {
 
@@ -17,9 +16,9 @@ public class GuiMainMenu extends Gui {
 		this.pauseGame = true;
 		list = new ChooseList(0, this);
 		list.setMaximumDisplayed(10);
-		list.addOption(list.new Option(0, "Start"));
-		list.addOption(list.new Option(1, "Options"));
-		list.addOption(list.new Option(2, "Highscore"));
+		list.addOption(list.new Option(0, "Create"));
+		list.addOption(list.new Option(1, "Load"));
+		list.addOption(list.new Option(2, "Options"));
 		list.addOption(list.new Option(3, "Exit"));
 	}
 
@@ -39,19 +38,15 @@ public class GuiMainMenu extends Gui {
 		if (elementId == list.getId()) {
 			switch (action) {
 			case 0:
-				game.setLevel("tile_test");
-				game.player = new Player(game, game.level, 32, 32, game.input);
-				game.level.addEntity(game.player);
-				game.level.addEntity(new Heart(game.level, 25*8, 30*8));
+				game.world = new World(game);
 				closeGui();
 				break;
 			case 1:
-				System.out.println("I think there are no options yet...");
-				splash = "<Imaginary volume control>";
+				game.showGui(new GuiLoad(game, Game.WIDTH, Game.HEIGHT));
+				closeGui();
 				break;
 			case 2:
-				System.out.println("Highscore? There aren't even points.");
-				splash = "Highscore? There aren't even points...";
+				splash = "No option, yet!";
 				break;
 			case 4:
 				System.out.println("The game has been quit!");
@@ -61,7 +56,7 @@ public class GuiMainMenu extends Gui {
 		}
 	}
 
-	public void actionPerformed(InputHandler input) {
-		list.actionPerformed(input);
+	public void actionPerformed(InputEvent event) {
+		list.actionPerformed(event);
 	}
 }
