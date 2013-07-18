@@ -15,7 +15,6 @@ public abstract class Gui implements GameActionListener{
 
 	protected Game game;
 	public InputHandler input;
-	private Gui parentGui;
 	
 	public SpriteSheet font;
 
@@ -48,10 +47,6 @@ public abstract class Gui implements GameActionListener{
 
 	public boolean pausesGame() {
 		return pauseGame;
-	}
-	
-	public void setParentGui(Gui gui) {
-		this.parentGui = gui;
 	}
 
 	public void drawDefaultBackground() {

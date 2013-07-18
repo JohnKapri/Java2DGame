@@ -73,7 +73,12 @@ public class Game extends Canvas implements Runnable, FocusListener {
 				+ Game.homeDir);
 		if (!f.exists()) {
 			f.mkdir();
-			Game.debug(Game.DebugLevel.INFO, "Directory created!");
+			Game.debug(Game.DebugLevel.INFO, "Directory " + f.getAbsolutePath()+ " created!");
+		}
+		File w = new File(World.WORLD_DIR);
+		if (!w.exists()) {
+			w.mkdir();
+			Game.debug(Game.DebugLevel.INFO, "Directory " + w.getAbsolutePath() + " created!");
 		}
 		addFocusListener(this);
 		int index = 0;
@@ -227,13 +232,6 @@ public class Game extends Canvas implements Runnable, FocusListener {
 		bs.show();
 	}
 
-	// TODO Rewrite this to fit the new format.
-	public void setLevel(String path) {
-		// this.level = new Level("non", 0, 0);
-		// level = LevelLoader.readLevelFromNBT(path);
-		// this.level.loadLevelFromFile(path);
-	}
-
 	/**
 	 * Opens a GUI to display.
 	 * 
@@ -253,6 +251,16 @@ public class Game extends Canvas implements Runnable, FocusListener {
 		if (this.gui == gui) {
 			this.gui = null;
 		}
+	}
+	
+	/**
+	 * Forces any menu to close. THIS IS ONLY USED IN THE LEVEL EDITOR.
+	 */
+	public void forceGuiClose() {
+		if(gui != null) {
+			gui.closeGui();
+		}
+		gui = null;
 	}
 
 	public synchronized void start() {

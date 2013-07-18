@@ -48,7 +48,7 @@ public class GuiMainMenu extends Gui {
 			case 2:
 				splash = "No option, yet!";
 				break;
-			case 4:
+			case 3:
 				System.out.println("The game has been quit!");
 				System.exit(0);
 				break;
