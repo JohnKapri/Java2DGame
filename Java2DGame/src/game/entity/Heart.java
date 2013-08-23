@@ -1,10 +1,11 @@
 package game.entity;
 
+import game.Tag;
 import game.gfx.Colors;
 import game.gfx.Screen;
 import game.level.Level;
 
-public class Heart extends Entity {
+public class Heart extends Entity{
 
 	private int animState;
 	private boolean animDecr;
@@ -45,4 +46,8 @@ public class Heart extends Entity {
 				1);
 	}
 
+	public Tag saveToNBT(Tag tag) {
+		tag.addTag(new Tag(Tag.Type.TAG_End, null, null));
+		return tag;
+	}
 }

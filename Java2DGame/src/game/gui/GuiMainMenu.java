@@ -4,7 +4,6 @@ import game.Game;
 import game.InputHandler.InputEvent;
 import game.gui.elements.ChooseList;
 import game.gui.elements.FontRenderer;
-import game.level.World;
 
 public class GuiMainMenu extends Gui {
 
@@ -38,7 +37,6 @@ public class GuiMainMenu extends Gui {
 		if (elementId == list.getId()) {
 			switch (action) {
 			case 0:
-				game.world = new World(game);
 				closeGui();
 				break;
 			case 1:
@@ -46,7 +44,7 @@ public class GuiMainMenu extends Gui {
 				closeGui();
 				break;
 			case 2:
-				splash = "No option, yet!";
+				splash = "No options, yet!";
 				break;
 			case 3:
 				System.out.println("The game has been quit!");

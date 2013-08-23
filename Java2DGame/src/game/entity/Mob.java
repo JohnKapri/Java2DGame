@@ -31,6 +31,10 @@ public abstract class Mob extends Entity implements NBTCapable{
 		this.y = y;
 		this.speed = speed;
 	}
+	
+//	public Mob(World w, Region r, Tag tag) {
+//		super(w, r, tag);
+//	}
 
 	public Mob(Level level, Tag nbt) {
 		super(level, nbt);
@@ -70,14 +74,12 @@ public abstract class Mob extends Entity implements NBTCapable{
 		}
 	}
 
-	//TODO Move to Level or Region.
 	public Tile getTileUnder() {
 		return (level.getTile(this.x >> 3, this.y >> 3));
 	}
 
 	public abstract boolean hasCollided(int xa, int ya);
 
-	//TODO Move to Level or Region.
 	public boolean isSolidTile(int xa, int ya, int x, int y) {
 		if (level == null) {
 			return false;

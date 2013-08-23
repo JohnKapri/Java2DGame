@@ -8,7 +8,7 @@ import game.level.NBTCapable;
 public abstract class Entity implements NBTCapable{
 	
 	public int x, y;
-	protected int id = 12;
+	protected int id;
 	protected int renderLayer = 1;
 	protected Level level;
 	protected int tickCount;
@@ -23,6 +23,11 @@ public abstract class Entity implements NBTCapable{
 		this.level = level2;
 		this.loadFromNBT(nbt);
 	}
+
+//	public Entity(World w, Region r, Tag tag) {
+//		
+//		loadFromNBT(tag);
+//	}
 
 	public void tick() {
 		tickCount++;

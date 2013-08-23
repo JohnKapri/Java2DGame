@@ -42,7 +42,7 @@ public class GuiPause extends Gui{
 				closeGui();
 				break;
 			case 1:
-				game.world.saveToFile();
+				game.getWorld().writeToFile();
 				break;
 			case 2:
 				splash = "Nope! Still no options.";

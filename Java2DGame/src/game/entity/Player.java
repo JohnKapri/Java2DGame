@@ -36,7 +36,7 @@ public class Player extends Mob implements GameActionListener, NBTCapable {
 	private Entity performActionOn = null;
 
 	public Player(Game game, String name, int x, int y) {
-		super(game.level, name, x, y, 1);
+		super(null, name, x, y, 1);
 		game.input.addListener(this);
 		this.game = game;
 		this.inventory = new Inventory(0, "Player Inventory", 20);
@@ -49,7 +49,7 @@ public class Player extends Mob implements GameActionListener, NBTCapable {
 	}
 
 	public Player(Game game, Tag nbt) {
-		super(game.level, nbt);
+		super(null, nbt);
 		this.input = game.input;
 		input.addListener(this);
 		this.loadFromNBT(nbt);
@@ -295,8 +295,7 @@ public class Player extends Mob implements GameActionListener, NBTCapable {
 	}
 
 	@Override
-	public Tag saveToNBT(Tag notused) {
-		Tag tag = new Tag(Tag.Type.TAG_Compound, "PLAYER", new Tag[1]);
+	public Tag saveToNBT(Tag tag) {
 		super.saveToNBT(tag);
 		tag.addTag(new Tag(Tag.Type.TAG_Int, "HEALTH", this.health));
 		tag.addTag(new Tag(Tag.Type.TAG_Int, "MAX_HEALTH", this.maxHealth));

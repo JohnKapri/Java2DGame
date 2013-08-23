@@ -1,13 +1,11 @@
 package game;
 
-import game.entity.Player;
 import game.gfx.Screen;
 import game.gfx.SpriteSheet;
 import game.gui.Gui;
 import game.gui.GuiFocus;
 import game.gui.GuiMainMenu;
 import game.gui.GuiPause;
-import game.level.Level;
 import game.level.World;
 
 import java.awt.Canvas;
@@ -49,12 +47,12 @@ public class Game extends Canvas implements Runnable, FocusListener {
 	public Screen screen;
 	public InputHandler input;
 
-	public Level level;
-	public Player player;
+	// public Level level;
+	private World world;
+	// public Player player;
 	private Gui gui;
 	public Gui hud;
 
-	private boolean isGamePaused;
 	public static boolean isApplet = false;
 	public boolean isFocused = true;
 
@@ -65,20 +63,20 @@ public class Game extends Canvas implements Runnable, FocusListener {
 	public static Game instance;
 	public static String homeDir;
 
-	public World world;
-
 	public void init() {
 		File f = new File(Game.homeDir);
 		Game.debug(Game.DebugLevel.INFO, "Game directory set to "
 				+ Game.homeDir);
 		if (!f.exists()) {
 			f.mkdir();
-			Game.debug(Game.DebugLevel.INFO, "Directory " + f.getAbsolutePath()+ " created!");
+			Game.debug(Game.DebugLevel.INFO, "Directory " + f.getAbsolutePath()
+					+ " created!");
 		}
 		File w = new File(World.WORLD_DIR);
 		if (!w.exists()) {
 			w.mkdir();
-			Game.debug(Game.DebugLevel.INFO, "Directory " + w.getAbsolutePath() + " created!");
+			Game.debug(Game.DebugLevel.INFO, "Directory " + w.getAbsolutePath()
+					+ " created!");
 		}
 		addFocusListener(this);
 		int index = 0;
@@ -156,29 +154,37 @@ public class Game extends Canvas implements Runnable, FocusListener {
 
 	public void tick() {
 		input.tick();
-		if (!isGamePaused) {
-			ticks++;
-			if (gui != null) {
-				gui.tick(ticks);
-				if (gui != null && !gui.pausesGame()) {
-					if (level != null) {
-						tickLevel();
-					}
-				}
-			} else {
-				if (level != null) {
+		ticks++;
+		if (gui != null) {
+			gui.tick(ticks);
+			if (gui != null && !gui.pausesGame()) {
+				if (world != null) {
 					tickLevel();
 				}
+			}
+		} else {
+			if (world != null) {
+				tickLevel();
 			}
 		}
 	}
 
-	private void tickLevel() {
-		level.tick();
-		hud.tick(ticks);
+	public World getWorld() {
+		return world;
 	}
 
-	public void render() {
+	public void setWorld(World world) {
+		this.world = world;
+	}
+
+	private void tickLevel() {
+		world.tick();
+		if (hud != null) {
+			hud.tick(ticks);
+		}
+	}
+
+	private void render() {
 		BufferStrategy bs = getBufferStrategy();
 		if (bs == null) {
 			createBufferStrategy(3);
@@ -190,9 +196,7 @@ public class Game extends Canvas implements Runnable, FocusListener {
 		g.fillRect(0, 0, getWidth(), getHeight());
 
 		if (gui != null) {
-
 			gui.render();
-
 			for (int y = 0; y < HEIGHT; y++) {
 				for (int x = 0; x < WIDTH; x++) {
 					int colorCode = gui.pixels[x + y * gui.width];
@@ -200,16 +204,8 @@ public class Game extends Canvas implements Runnable, FocusListener {
 				}
 			}
 		} else {
-			if (level != null) {
-				int xOffset = 0;
-				int yOffset = 0;
-				if (player != null) {
-					xOffset = player.x - (screen.width / 2);
-					yOffset = player.y - (screen.height / 2);
-				}
-
-				level.renderTiles(screen, xOffset, yOffset);
-				level.renderEntities(screen);
+			if (world != null) {
+				world.render(screen);
 
 				for (int y = 0; y < screen.height; y++) {
 					for (int x = 0; x < screen.width; x++) {
@@ -232,6 +228,60 @@ public class Game extends Canvas implements Runnable, FocusListener {
 		bs.show();
 	}
 
+	// public void render() {
+	// BufferStrategy bs = getBufferStrategy();
+	// if (bs == null) {
+	// createBufferStrategy(3);
+	// return;
+	// }
+	//
+	// Graphics g = bs.getDrawGraphics();
+	// g.setColor(Color.BLACK);
+	// g.fillRect(0, 0, getWidth(), getHeight());
+	//
+	// if (gui != null) {
+	//
+	// gui.render();
+	//
+	// for (int y = 0; y < HEIGHT; y++) {
+	// for (int x = 0; x < WIDTH; x++) {
+	// int colorCode = gui.pixels[x + y * gui.width];
+	// pixels[x + y * WIDTH] = colorCode + (0xFF << 24);
+	// }
+	// }
+	// } else {
+	// if (level != null) {
+	// int xOffset = 0;
+	// int yOffset = 0;
+	// if (player != null) {
+	// xOffset = player.x - (screen.width / 2);
+	// yOffset = player.y - (screen.height / 2);
+	// }
+	//
+	// level.renderTiles(screen, xOffset, yOffset);
+	// level.renderEntities(screen);
+	//
+	// for (int y = 0; y < screen.height; y++) {
+	// for (int x = 0; x < screen.width; x++) {
+	// int colorCode = screen.pixels[x + y * screen.width];
+	// if (colorCode < 255) {
+	// pixels[x + y * WIDTH] = colors[colorCode];
+	// }
+	// }
+	// }
+	// if (hud != null) {
+	// hud.pixels = pixels;
+	// hud.render();
+	// }
+	// }
+	// }
+	//
+	// g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
+	//
+	// g.dispose();
+	// bs.show();
+	// }
+
 	/**
 	 * Opens a GUI to display.
 	 * 
@@ -252,12 +302,12 @@ public class Game extends Canvas implements Runnable, FocusListener {
 			this.gui = null;
 		}
 	}
-	
+
 	/**
 	 * Forces any menu to close. THIS IS ONLY USED IN THE LEVEL EDITOR.
 	 */
 	public void forceGuiClose() {
-		if(gui != null) {
+		if (gui != null) {
 			gui.closeGui();
 		}
 		gui = null;
@@ -311,11 +361,12 @@ public class Game extends Canvas implements Runnable, FocusListener {
 	}
 
 	/**
-	 * A list of debug levels. If something isn't performing as expected but is
-	 * not critical for the runtime. ERROR: Something bad happened and the game
-	 * can no longer run.
+	 * A list of debug levels. INFO: Some information useful for programmers
+	 * WARNING: If something isn't performing as expected but is not critical
+	 * for the runtime. ERROR: Something bad happened and the game can no longer
+	 * run.
 	 * 
-	 * @author John Kapri INFO: Some information useful for programmers WARNING:
+	 * @author John Kapri
 	 */
 	public static enum DebugLevel {
 		INFO, WARNING, ERROR;

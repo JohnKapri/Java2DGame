@@ -1,9 +1,7 @@
 package game.gui;
 
 import game.Game;
-import game.InputHandler;
 import game.InputHandler.InputEvent;
-import game.entity.Player;
 import game.gui.elements.ChooseList;
 import game.gui.elements.FontRenderer;
 
@@ -47,8 +45,6 @@ public class GuiDead extends Gui {
 				break;
 			case 1:
 				System.out.println("Main Menu");
-				game.player = null;
-				game.level = null;
 				closeGui();
 				game.showGui(new GuiMainMenu(game, Game.WIDTH, Game.HEIGHT));
 				break;

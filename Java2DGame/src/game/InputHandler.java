@@ -63,7 +63,6 @@ public class InputHandler implements KeyListener {
 				if (keys[i] == null) {
 					this.id = i;
 					keys[i] = this;
-					System.out.println("Added kex with ID: " + id);
 					break;
 				}
 			}

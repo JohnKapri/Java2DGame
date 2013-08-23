@@ -7,24 +7,18 @@ import game.entity.Entity;
 import game.gfx.Screen;
 import game.level.tile.Tile;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
-import javax.imageio.ImageIO;
 
 public class Level implements NBTCapable {
 
 	private byte[] tiles;
+	private byte[] meta;
+	private byte[] overlay;
 	private int width;
 	private int height;
 	private String name;
-	private String nextLevel = "none";
 	private List<Entity> entities = new ArrayList<Entity>();
-
-	private BufferedImage image;
 
 	public Level(String name, int width, int height) {
 		this.name = name;
@@ -32,7 +26,7 @@ public class Level implements NBTCapable {
 		this.height = height;
 		this.tiles = new byte[width * height];
 	}
-	
+
 	public Level(Tag tag) {
 		this.name = "LEVEL";
 		this.loadFromNBT(tag);
@@ -90,49 +84,6 @@ public class Level implements NBTCapable {
 				}
 			}
 		}
-	}
-
-	public void loadLevelFromFile(String path) {
-		try {
-			this.image = ImageIO.read(Level.class.getResourceAsStream(path));
-			this.width = image.getWidth();
-			this.height = image.getHeight();
-			tiles = new byte[this.width * this.height];
-			this.loadTiles();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void loadTiles() {
-		long time = System.currentTimeMillis();
-		Random rand = new Random();
-		int[] tileColors = this.image.getRGB(0, 0, width, height, null, 0,
-				width);
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				tileCheck: for (Tile t : Tile.tiles) {
-					if (t != null
-							&& t.getLevelColor() == tileColors[x + y * width]) {
-						if (t.isParent() && rand.nextInt(100) < 8) {
-							this.tiles[x + y * width] = t.getChildren()[rand
-									.nextInt(t.getChildren().length)];
-						} else {
-							this.tiles[x + y * width] = t.getId();
-						}
-						break tileCheck;
-					}
-				}
-			}
-		}
-
-		Game.debug(DebugLevel.INFO,
-				"Level loaded in " + (System.currentTimeMillis() - time));
-	}
-
-	public void updateTileSheet(int x, int y, Tile newTile) {
-		this.tiles[x + y * width] = newTile.getId();
-		this.image.setRGB(x, y, newTile.getLevelColor());
 	}
 
 	public boolean removeEntity(Entity entity) {
@@ -198,38 +149,41 @@ public class Level implements NBTCapable {
 		return name;
 	}
 
-	public String getNextLevelName() {
-		return nextLevel;
-	}
-
-	public void setNextLevel(String nextLevel) {
-		this.nextLevel = nextLevel;
-	}
-
 	@Override
 	public void loadFromNBT(Tag tag) {
-		tag = tag.findTagByName("LEVEL");
 		this.name = tag.findTagByName("NAME").getValue().toString();
-		this.nextLevel = tag.findTagByName("NAME").getValue().toString();
 		this.width = (int) tag.findTagByName("WIDTH").getValue();
 		this.height = (int) tag.findTagByName("HEIGHT").getValue();
-		byte[] t = (byte[]) tag.findTagByName("TILES").getValue();
-		tiles = new byte[width * height];
-		setTiles(t);
+		this.tiles = (byte[]) tag.findTagByName("TILES").getValue();
+		this.meta = (byte[]) tag.findTagByName("META").getValue();
+		this.overlay = (byte[]) tag.findTagByName("OVERLAY").getValue();
+		if(tiles.length != width * height) {
+			Game.debug(Game.DebugLevel.WARNING, "Tile data corrupted!");
+			Game.debug(Game.DebugLevel.ERROR, "Error while loading level \"" + name + "\"!");
+		}
+		if(meta.length != width * height) {
+			Game.debug(Game.DebugLevel.WARNING, "Meta data corrupted!");
+			Game.debug(Game.DebugLevel.ERROR, "Error while loading level \"" + name + "\"!");
+		}
+		if(overlay.length != width * height) {
+			Game.debug(Game.DebugLevel.WARNING, "Overlay data corrupted!");
+			Game.debug(Game.DebugLevel.ERROR, "Error while loading level \"" + name + "\"!");
+		}
 	}
 
 	@Override
 	public Tag saveToNBT(Tag notused) {
-		Tag tag = new Tag(Tag.Type.TAG_Compound, "LEVEL",
+		Tag tag = new Tag(Tag.Type.TAG_Compound, name.toUpperCase(),
 				new Tag[] {
 						new Tag(Tag.Type.TAG_String, "NAME", this.getName()),
-						new Tag(Tag.Type.TAG_String, "NEXT_LEVEL",
-								this.getNextLevelName()),
 						new Tag(Tag.Type.TAG_String, "NEXT_LEVEL", "none"),
 						new Tag(Tag.Type.TAG_Int, "WIDTH", this.getWidth()),
 						new Tag(Tag.Type.TAG_Int, "HEIGHT", this.getHeight()),
 						new Tag(Tag.Type.TAG_Byte_Array, "TILES",
 								this.getTileIdArray()),
+						new Tag(Tag.Type.TAG_Byte_Array, "META", this.meta),
+						new Tag(Tag.Type.TAG_Byte_Array, "OVERLAY",
+								this.overlay),
 						new Tag(Tag.Type.TAG_End, null, null) });
 		return tag;
 	}

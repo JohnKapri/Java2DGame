@@ -3,24 +3,22 @@ package game.level;
 import game.Game;
 import game.Game.DebugLevel;
 import game.Tag;
-import game.entity.Heart;
 import game.entity.Player;
+import game.gfx.Screen;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import javax.swing.JOptionPane;
-
 public class World implements NBTCapable {
-	
-	public static String WORLD_DIR = Game.homeDir + "saves" + File.separator;
 
-	//private Region[] regions;
+	public static String WORLD_DIR = Game.homeDir + "saves" + File.separator;
+	public static int VERSION = 1;
+
+	private Level level;
 	private Player player;
 	private Game game;
-	private boolean isFirstLoad;
 	private long timeStartThisSesson;
 	private long timePlayed;
 	private Tag worldTag;
@@ -28,17 +26,16 @@ public class World implements NBTCapable {
 
 	public World(Game game, String name) {
 		this.name = name;
-			File path = new File(Game.homeDir + "saves" + File.separator);
-			File f = new File(path, (new StringBuilder().append("WORLD_")
-					.append(this.name).toString()).toUpperCase().replaceAll(
-					" ", "_")
-					+ ".dat");
-			if (!f.exists()) {
-				Game.debug(DebugLevel.ERROR, "File \"" + f.getAbsolutePath()
-						+ "\" does not exist!");
-				return;
-			}
-			this.game = game;
+		this.game = game;
+		File path = new File(Game.homeDir + "saves" + File.separator);
+		File f = new File(path, (new StringBuilder().append("WORLD_").append(
+				this.name).toString()).toUpperCase().replaceAll(" ", "_")
+				+ ".dat");
+		if (!f.exists()) {
+			Game.debug(DebugLevel.ERROR, "File \"" + f.getAbsolutePath()
+					+ "\" does not exist!");
+			return;
+		}
 		try {
 			worldTag = Tag.readFrom(new FileInputStream(f));
 			loadFromNBT(worldTag);
@@ -52,31 +49,27 @@ public class World implements NBTCapable {
 		}
 		timeStartThisSesson = System.currentTimeMillis();
 	}
-
-	public World(Game game) {
-		this.game = game;
-		while (true) {
-			this.name = JOptionPane
-					.showInputDialog("Give a name to the new Save");
-			File f = new File(Game.homeDir, "/saves/"
-					+ name.toUpperCase().replace(" ", "_"));
-			if (!f.exists()) {
-				break;
-			}
+	
+	public void tick() {
+		if(level != null) {
+			level.tick();
 		}
-		Level level = new Level("tile_test", 0, 0);
-		level.loadLevelFromFile("/levels/tile_test.png");
-		game.level = level;
-		player = new Player(game,
-				JOptionPane.showInputDialog("Enter the Player's name!"), 32, 32);
-		game.player = player;
-		game.level.addEntity(game.player);
-		game.level.addEntity(new Heart(game.level, 25 * 8, 30 * 8));
-		
-		timeStartThisSesson = System.currentTimeMillis();
 	}
 
-	public void saveToFile() {
+	public void render(Screen screen) {
+		if(level != null) {
+			int xOffset = 0;
+			int yOffset = 0;
+			if (player != null) {
+				xOffset = player.x - (screen.width / 2);
+				yOffset = player.y - (screen.height / 2);
+			}
+
+			level.renderTiles(screen, xOffset, yOffset);
+		}
+	}
+
+	public void writeToFile() {
 		Tag tag = saveToNBT(null);
 		File path = new File(Game.homeDir + "saves" + File.separator);
 		if (!path.exists()) {
@@ -92,36 +85,35 @@ public class World implements NBTCapable {
 		}
 		try {
 			tag.writeTo(new FileOutputStream(f));
+			this.timeStartThisSesson = System.currentTimeMillis();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	@Override
 	public void loadFromNBT(Tag tag) {
-		game.level = new Level(worldTag);
-		game.player = new Player(game, worldTag.findTagByName("PLAYER"));
-		this.player = game.player;
-		game.level.addEntity(player);
-		game.level.addEntity(new Heart(game.level, 25 * 8, 30 * 8));
+		this.name = tag.findTagByName("NAME").getValue().toString();
+		this.timePlayed = (long) tag.findTagByName("TIME_PLAYED").getValue();
+		String startLevel = tag.findTagByName("STARTLEVEL").getValue().toString();
+		level = new Level(tag.findTagByName("LEVELS").findTagByName(startLevel));
+		player = new Player(game, tag);
 	}
 
 	@Override
 	public Tag saveToNBT(Tag notused) {
-		byte virgin = 0;
-		if (isFirstLoad) {
-			virgin = 1;
-		}
 		timePlayed += (System.currentTimeMillis() - this.timeStartThisSesson);
 		Tag tag = new Tag(Tag.Type.TAG_Compound, new StringBuilder()
 				.append("WORLD_")
 				.append((this.name).toUpperCase().replaceAll(" ", "_"))
 				.toString(), new Tag[1]);
 		tag.addTag(new Tag(Tag.Type.TAG_String, "NAME", this.name));
-		tag.addTag(new Tag(Tag.Type.TAG_Byte, "VIRNGIN", virgin));
 		tag.addTag(new Tag(Tag.Type.TAG_Long, "TIME_PLAYED", this.timePlayed));
+		tag.addTag(new Tag(Tag.Type.TAG_String, "STARTLEVEL", level.getName()));
 		tag.addTag(player.saveToNBT(null));
-		tag.addTag(game.level.saveToNBT(null));
+		// tag.addTag(game.level.saveToNBT(null));
+		Tag levels = new Tag("LEVELS", Tag.Type.TAG_Compound);
+		levels.addTag(level.saveToNBT(null));
+		tag.addTag(levels);
 		tag.addTag(new Tag(Tag.Type.TAG_End, null, null));
 		return tag;
 	}

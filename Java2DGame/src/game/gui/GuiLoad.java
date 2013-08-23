@@ -41,7 +41,7 @@ public class GuiLoad extends Gui {
 			selectedEntry = worlds.length - 1;
 		}
 		if (event.key.id == input.action.id && event.type == InputEventType.PRESSED) {
-			game.world = new World(game, worlds[selectedEntry].name);
+			game.setWorld(new World(game, worlds[selectedEntry].name));
 			closeGui();
 		}
 	}
