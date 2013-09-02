@@ -37,11 +37,11 @@ public class GuiMainMenu extends Gui {
 		if (elementId == list.getId()) {
 			switch (action) {
 			case 0:
-				closeGui();
+				close();
 				break;
 			case 1:
-				game.showGui(new GuiLoad(game, Game.WIDTH, Game.HEIGHT));
-				closeGui();
+				close();
+				game.showGui(new GuiLoad(game, Game.WIDTH, Game.HEIGHT).setParent(this));
 				break;
 			case 2:
 				splash = "No options, yet!";

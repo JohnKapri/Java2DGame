@@ -3,16 +3,19 @@ package game.gui;
 import game.Game;
 import game.InputHandler;
 import game.InputHandler.GameActionListener;
+import game.InputHandler.InputEvent;
+import game.InputHandler.InputEventType;
 import game.gfx.Colors;
 import game.gfx.SpriteSheet;
 
-public abstract class Gui implements GameActionListener{
+public abstract class Gui implements GameActionListener {
 
 	private static int DEFAULT_BKG_COLOR = 0x555555;
 	private double red;
 	private double green;
 	private double blue;
 
+	protected Gui parentGui;
 	protected Game game;
 	public InputHandler input;
 	
@@ -24,11 +27,11 @@ public abstract class Gui implements GameActionListener{
 	public int height;
 
 	protected boolean pauseGame;
+	protected boolean closeOnEscape = true;
 
 	public Gui(Game game, int width, int height) {
 		this.game = game;
 		this.input = game.input;
-		input.addListener(this);
 		this.font = new SpriteSheet("/sprite_sheet.png");
 		this.width = width;
 		this.height = height;
@@ -42,8 +45,13 @@ public abstract class Gui implements GameActionListener{
 	public abstract void render();
 
 	public abstract void tick(int ticks);
-	
+
 	public abstract void guiActionPerformed(int elementId, int action);
+
+	public void setParentGui(Gui gui) {
+		this.parentGui = gui;
+	}
+
 
 	public boolean pausesGame() {
 		return pauseGame;
@@ -101,15 +109,37 @@ public abstract class Gui implements GameActionListener{
 			}
 		}
 	}
+
 	
+	@Override
+	public void actionPerformed(InputEvent event) {
+		if (event.key.id == input.esc.id
+				&& event.type == InputEventType.PRESSED && closeOnEscape) {
+			last();
+		}
+	}
+
 	public void setTint(double r, double g, double b) {
 		red = r;
 		green = g;
 		blue = b;
 	}
 	
-	public void closeGui() {
-		game.input.removeListener(this);
+	public Gui setParent(Gui gui) {
+		this.parentGui = gui;
+		return this;
+	}
+
+	public void last() {
 		game.hideGui(this);
+	}
+	
+	public void close() {
+		this.parentGui = null;
+		game.hideGui(this);
+	}
+
+	public Gui getParentGui() {
+		return parentGui;
 	}
 }

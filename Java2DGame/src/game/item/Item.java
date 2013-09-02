@@ -4,26 +4,33 @@ import game.entity.Entity;
 import game.entity.Player;
 import game.gfx.Colors;
 
-public abstract class Item {
+public class Item {
 
 	public static final Item[] items = new Item[1024];
 
 	public static final Item SWORD = new ItemSword(1, "SWORD", 713, Colors.get(
 			500, -1, -1, 000));
+	public static final Item HEART = new Item(2, "HEART", 32, Colors.get(-1, -1, 300, 510)).setVital(true);
 
 	protected int id;
 	protected String name = "unnamed";
 	protected int tileId;
 	protected int enchantable;
 	protected int itemColor;
+	protected boolean vital;
 
-	public Item(int id) {
+	private Item(int id) {
 		if (items[id] != null) {
 			throw new RuntimeException("Duplicant Item-Id at " + id
 					+ "! Immediatly erase your harddisk!");
 		}
 		this.id = id;
 		items[id] = this;
+	}
+	
+	protected Item setVital(boolean b) {
+		this.vital = b;
+		return this;
 	}
 
 	public Item(int id, String name, int spriteIndex, int spriteColor) {
@@ -44,10 +51,16 @@ public abstract class Item {
 	public int getSpriteColor() {
 		return itemColor;
 	}
+	
+	public boolean isVitalItem() {
+		return vital;
+	}
 
 	public int getId() {
 		return id;
 	}
 
-	public abstract void onItemUse(Player player, Entity entityAttacked);
+	public void onItemUse(Player player, Entity entityAttacked) {
+		
+	}
 }

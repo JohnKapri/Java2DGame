@@ -16,7 +16,7 @@ public class GuiPause extends Gui{
 		list = new ChooseList(0, this);
 		list.addOption(list.new Option(0, "Resume"));
 		list.addOption(list.new Option(1, "Save"));
-		list.addOption(list.new Option(2, "Options"));
+		list.addOption(list.new Option(2, "Main Menu"));
 		list.addOption(list.new Option(3, "Exit"));
 	}
 
@@ -39,17 +39,18 @@ public class GuiPause extends Gui{
 		if(elementId == list.getId()) {
 			switch (action) {
 			case 0 :
-				closeGui();
+				close();
 				break;
 			case 1:
 				game.getWorld().writeToFile();
 				break;
 			case 2:
-				splash = "Nope! Still no options.";
+				close();
+				game.showGui(new GuiMainMenu(game, Game.WIDTH, Game.HEIGHT));
 				break;
 			case 3:
 				System.out.println("The game has been quit!");
-				closeGui();
+				close();
 				System.exit(0);
 				break;
 			}

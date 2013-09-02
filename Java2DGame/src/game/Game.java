@@ -95,14 +95,7 @@ public class Game extends Canvas implements Runnable, FocusListener {
 		screen = new Screen(WIDTH, HEIGHT, new SpriteSheet("/sprite_sheet.png"));
 		input = new InputHandler(this);
 
-		gui = new GuiMainMenu(this, WIDTH, HEIGHT);
-
-		/*
-		 * if (!new File(homeDir, File.separator + "level" + File.separator +
-		 * "tile_test.dat").exists()) { Level level = new Level("tile_test", 0,
-		 * 0); level.loadLevelFromFile("/levels/tile_test.png");
-		 * LevelLoader.writeLevelToNBT(level); }
-		 */
+		showGui(new GuiMainMenu(this, WIDTH, HEIGHT));
 	}
 
 	public void run() {
@@ -228,76 +221,31 @@ public class Game extends Canvas implements Runnable, FocusListener {
 		bs.show();
 	}
 
-	// public void render() {
-	// BufferStrategy bs = getBufferStrategy();
-	// if (bs == null) {
-	// createBufferStrategy(3);
-	// return;
-	// }
-	//
-	// Graphics g = bs.getDrawGraphics();
-	// g.setColor(Color.BLACK);
-	// g.fillRect(0, 0, getWidth(), getHeight());
-	//
-	// if (gui != null) {
-	//
-	// gui.render();
-	//
-	// for (int y = 0; y < HEIGHT; y++) {
-	// for (int x = 0; x < WIDTH; x++) {
-	// int colorCode = gui.pixels[x + y * gui.width];
-	// pixels[x + y * WIDTH] = colorCode + (0xFF << 24);
-	// }
-	// }
-	// } else {
-	// if (level != null) {
-	// int xOffset = 0;
-	// int yOffset = 0;
-	// if (player != null) {
-	// xOffset = player.x - (screen.width / 2);
-	// yOffset = player.y - (screen.height / 2);
-	// }
-	//
-	// level.renderTiles(screen, xOffset, yOffset);
-	// level.renderEntities(screen);
-	//
-	// for (int y = 0; y < screen.height; y++) {
-	// for (int x = 0; x < screen.width; x++) {
-	// int colorCode = screen.pixels[x + y * screen.width];
-	// if (colorCode < 255) {
-	// pixels[x + y * WIDTH] = colors[colorCode];
-	// }
-	// }
-	// }
-	// if (hud != null) {
-	// hud.pixels = pixels;
-	// hud.render();
-	// }
-	// }
-	// }
-	//
-	// g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
-	//
-	// g.dispose();
-	// bs.show();
-	// }
-
 	/**
 	 * Opens a GUI to display.
 	 * 
 	 * @param gui
-	 *            The GUI that should be displayed. Usually a new instace.
+	 *            The GUI that should be displayed. Usually a new instance.
 	 */
 	public void showGui(Gui gui) {
+		if(this.gui != null) {
+			input.removeListener(this.gui);
+		}
 		this.gui = null;
 		this.gui = gui;
+		input.addListener(this.gui);
 	}
 
 	/**
 	 * Closes the currently displayed GUI.
+	 * 
+	 * @param gui The GUI that should be closed.
 	 */
 	public void hideGui(Gui gui) {
 		input.removeListener(gui);
+		if (gui.getParentGui() != null) {
+			showGui(gui.getParentGui());
+		}
 		if (this.gui == gui) {
 			this.gui = null;
 		}
@@ -308,7 +256,7 @@ public class Game extends Canvas implements Runnable, FocusListener {
 	 */
 	public void forceGuiClose() {
 		if (gui != null) {
-			gui.closeGui();
+			gui.close();
 		}
 		gui = null;
 	}
@@ -376,7 +324,7 @@ public class Game extends Canvas implements Runnable, FocusListener {
 	public void focusGained(FocusEvent arg0) {
 		isFocused = true;
 		if (gui != null && gui instanceof GuiFocus) {
-			gui.closeGui();
+			gui.last();
 		}
 	}
 

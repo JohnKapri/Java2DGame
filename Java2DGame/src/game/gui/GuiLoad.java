@@ -28,6 +28,8 @@ public class GuiLoad extends Gui {
 
 	@Override
 	public void actionPerformed(InputEvent event) {
+		super.actionPerformed(event);
+		
 		if (event.key.id == input.down.id && event.type == InputEventType.PRESSED) {
 			selectedEntry++;
 		}
@@ -42,7 +44,7 @@ public class GuiLoad extends Gui {
 		}
 		if (event.key.id == input.action.id && event.type == InputEventType.PRESSED) {
 			game.setWorld(new World(game, worlds[selectedEntry].name));
-			closeGui();
+			close();
 		}
 	}
 

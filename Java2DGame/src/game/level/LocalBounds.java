@@ -2,8 +2,8 @@ package game.level;
 
 public class LocalBounds {
 	
-	int width;
-	int height;
+	public int width;
+	public int height;
 	int xOffset;
 	int yOffset;
 	

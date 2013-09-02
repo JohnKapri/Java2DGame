@@ -44,9 +44,9 @@ public class WorldPreview {
 		int minutes = (int) ((milliseconds / (1000 * 60)) % 60);
 		int hours = (int) ((milliseconds / (1000 * 60 * 60)) % 24);
 		StringBuilder out = new StringBuilder();
-		if (seconds == 0 || minutes == 0 || hours == 0) {
-			out.append("not played yet");
-		} else {
+		//if (seconds == 0 || minutes == 0 || hours == 0) {
+			//out.append("not played yet");
+		//} else {
 			if (hours > 0) {
 				out.append(hours).append("h");
 			}
@@ -56,7 +56,7 @@ public class WorldPreview {
 			if (seconds > 0) {
 				out.append(seconds).append("s");
 			}
-		}
+		//}
 		return out.toString();
 	}
 }

@@ -28,15 +28,12 @@ public class Heart extends Entity{
 				animDecr = !animDecr;
 			}
 		}
+	}
 
-		Entity[] collides = level.getEntityWithin(x - 4, y - 4, x + 8, y + 8);
-		for (Entity e : collides) {
-			if (e instanceof Player) {
-				if (((Player) e).heal(1, this)) {
-					level.removeEntity(this);
-					break;
-				}
-			}
+	@Override
+	public void onCollideWithPlayer(Player player) {
+		if (player.heal(1, this)) {
+			level.removeEntity(this);
 		}
 	}
 

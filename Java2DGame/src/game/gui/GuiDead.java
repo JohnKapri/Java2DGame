@@ -41,11 +41,11 @@ public class GuiDead extends Gui {
 			switch (action) {
 			case 0:
 				System.out.println("Reload");
-				closeGui();
+				last();
 				break;
 			case 1:
 				System.out.println("Main Menu");
-				closeGui();
+				last();
 				game.showGui(new GuiMainMenu(game, Game.WIDTH, Game.HEIGHT));
 				break;
 			case 2:

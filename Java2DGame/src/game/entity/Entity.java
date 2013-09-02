@@ -3,6 +3,7 @@ package game.entity;
 import game.Tag;
 import game.gfx.Screen;
 import game.level.Level;
+import game.level.LocalBounds;
 import game.level.NBTCapable;
 
 public abstract class Entity implements NBTCapable{
@@ -12,6 +13,7 @@ public abstract class Entity implements NBTCapable{
 	protected int renderLayer = 1;
 	protected Level level;
 	protected int tickCount;
+	protected LocalBounds bounds;
 
 	public Entity(Level world, int x2, int y2) {
 		this.level = world;
@@ -52,6 +54,10 @@ public abstract class Entity implements NBTCapable{
 	}
 
 	public void atEntityRemoved(Level l) {
+		
+	}
+	
+	public void onCollideWithPlayer(Player p) {
 		
 	}
 	

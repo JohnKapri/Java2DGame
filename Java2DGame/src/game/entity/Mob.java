@@ -5,7 +5,7 @@ import game.level.Level;
 import game.level.NBTCapable;
 import game.level.tile.Tile;
 
-public abstract class Mob extends Entity implements NBTCapable{
+public abstract class Mob extends Entity implements NBTCapable {
 
 	protected String name;
 	protected int speed;
@@ -18,11 +18,17 @@ public abstract class Mob extends Entity implements NBTCapable{
 
 	/**
 	 * The type Mob cannot be instanciated due to it being an abstract type.
-	 * @param level The Level the Mob is in.
-	 * @param name The name of the mob.
-	 * @param x The x coordinate at which the Mob will be.
-	 * @param y The y coordinate at which the Mob will be.
-	 * @param speed The maximum speed of the Mob. Usually this is 1.
+	 * 
+	 * @param level
+	 *            The Level the Mob is in.
+	 * @param name
+	 *            The name of the mob.
+	 * @param x
+	 *            The x coordinate at which the Mob will be.
+	 * @param y
+	 *            The y coordinate at which the Mob will be.
+	 * @param speed
+	 *            The maximum speed of the Mob. Usually this is 1.
 	 */
 	public Mob(Level level, String name, int x, int y, int speed) {
 		super(level, x, y);
@@ -42,9 +48,13 @@ public abstract class Mob extends Entity implements NBTCapable{
 	}
 
 	/**
-	 * Handles the movement of the Mob and prevents it from moving to fast. Also sets the direction in which the Mob is moving.
-	 * @param xa The difference to the last x coordinate.
-	 * @param ya The differende to the last y coordinate.
+	 * Handles the movement of the Mob and prevents it from moving to fast. Also
+	 * sets the direction in which the Mob is moving.
+	 * 
+	 * @param xa
+	 *            The difference to the last x coordinate.
+	 * @param ya
+	 *            The differende to the last y coordinate.
 	 */
 	public void move(int xa, int ya) {
 		if (xa != 0 && ya != 0) {
@@ -78,6 +88,18 @@ public abstract class Mob extends Entity implements NBTCapable{
 		return (level.getTile(this.x >> 3, this.y >> 3));
 	}
 
+	public boolean canStand() {
+		if (level.getTile((x + bounds.width) / 8, (y + bounds.height) / 8).canStandOn())
+			return true;
+		if (level.getTile((x + bounds.width) / 8, y / 8).canStandOn())
+			return true;
+		if (level.getTile(x / 8, (y + bounds.height) / 8).canStandOn())
+			return true;
+		if (level.getTile(x / 8, y / 8).canStandOn())
+			return true;
+		return false;
+	}
+
 	public abstract boolean hasCollided(int xa, int ya);
 
 	public boolean isSolidTile(int xa, int ya, int x, int y) {
@@ -95,7 +117,9 @@ public abstract class Mob extends Entity implements NBTCapable{
 
 	/**
 	 * Returns the name of the Mob.
-	 * @return Name of the Mob. If not specified, this will be the type of mob, like "Monster", "Villager".
+	 * 
+	 * @return Name of the Mob. If not specified, this will be the type of mob,
+	 *         like "Monster", "Villager".
 	 */
 	public String getName() {
 		return name;
@@ -108,7 +132,7 @@ public abstract class Mob extends Entity implements NBTCapable{
 		tag.addTag(new Tag(Tag.Type.TAG_Int, "SPEED", this.speed));
 		return tag;
 	}
-	
+
 	@Override
 	public void loadFromNBT(Tag tag) {
 		super.loadFromNBT(tag);
