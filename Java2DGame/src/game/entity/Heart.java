@@ -4,14 +4,20 @@ import game.Tag;
 import game.gfx.Colors;
 import game.gfx.Screen;
 import game.level.Level;
+import game.level.LocalBounds;
 
-public class Heart extends Entity{
+public class Heart extends Entity {
 
 	private int animState;
 	private boolean animDecr;
 
 	public Heart(Level level, int x, int y) {
 		super(level, x, y);
+	}
+
+	public Heart(Level level, Tag tag) {
+		super(level, tag);
+		this.bounds = new LocalBounds(8, 8);
 	}
 
 	@Override
@@ -41,10 +47,5 @@ public class Heart extends Entity{
 	public void render(Screen screen) {
 		screen.render(x, y, 32 + animState, Colors.get(-1, -1, 300, 510), 0x00,
 				1);
-	}
-
-	public Tag saveToNBT(Tag tag) {
-		tag.addTag(new Tag(Tag.Type.TAG_End, null, null));
-		return tag;
 	}
 }

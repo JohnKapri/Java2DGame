@@ -15,6 +15,7 @@ import game.item.Inventory;
 import game.level.GlobalBounds;
 import game.level.LocalBounds;
 import game.level.NBTCapable;
+import game.level.World;
 import game.level.tile.Tile;
 
 public class Player extends Mob implements GameActionListener, NBTCapable {
@@ -35,30 +36,34 @@ public class Player extends Mob implements GameActionListener, NBTCapable {
 	private int heartDisplayTime = 0;
 	private Entity performActionOn = null;
 
-	public Player(Game game, String name, int x, int y) {
+	public Player(World world, String name, int x, int y) {
 		super(null, name, x, y, 1);
-		game.input.addListener(this);
-		this.game = game;
+		this.level = world.getLevel();
 		this.inventory = new Inventory(0, "Player Inventory", 20);
 		this.bounds = new LocalBounds(8, 4, 4, 12);
 		health = 3;
-		this.input = game.input;
 		this.renderLayer = 3;
-		game.hud = new GuiHUD(game, this, Game.WIDTH, Game.HEIGHT);
-		this.id = 0;
+		if (world.getGame() != null) {
+			this.game = world.getGame();
+			this.input = game.input;
+			input.addListener(this);
+			game.hud = new GuiHUD(game, this, Game.WIDTH, Game.HEIGHT);
+		}
 	}
 
-	public Player(Game game, Tag nbt) {
+	public Player(World world, Tag nbt) {
 		super(null, nbt);
-		this.input = game.input;
-		input.addListener(this);
+		this.level = world.getLevel();
 		this.loadFromNBT(nbt);
-		this.game = game;
+		if (world.getGame() != null) {
+			this.game = world.getGame();
+			this.input = game.input;
+			input.addListener(this);
+			game.hud = new GuiHUD(game, this, Game.WIDTH, Game.HEIGHT);
+		}
 		this.inventory = new Inventory(0, "Player Inventory", 20);
 		this.bounds = new LocalBounds(8, 4, 4, 12);
-		this.input = game.input;
 		this.renderLayer = 3;
-		game.hud = new GuiHUD(game, this, Game.WIDTH, Game.HEIGHT);
 		this.id = 0;
 	}
 
@@ -118,17 +123,19 @@ public class Player extends Mob implements GameActionListener, NBTCapable {
 		int xa = 0;
 		int ya = 0;
 
-		if (input.isKeyPressed(input.up)) {
-			ya--;
-		}
-		if (input.isKeyPressed(input.down)) {
-			ya++;
-		}
-		if (input.isKeyPressed(input.left)) {
-			xa--;
-		}
-		if (input.isKeyPressed(input.right)) {
-			xa++;
+		if (input != null) {
+			if (input.isKeyPressed(input.up)) {
+				ya--;
+			}
+			if (input.isKeyPressed(input.down)) {
+				ya++;
+			}
+			if (input.isKeyPressed(input.left)) {
+				xa--;
+			}
+			if (input.isKeyPressed(input.right)) {
+				xa++;
+			}
 		}
 
 		if (xa != 0 || ya != 0) {

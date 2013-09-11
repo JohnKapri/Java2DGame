@@ -1,18 +1,18 @@
 package game.entity;
 
 import game.Tag;
-import game.level.NBTCapable;
+import game.level.Level;
 
 import java.lang.reflect.InvocationTargetException;
 
 public class EntityLoader {
 
-	public static Entity loadEntity(int id, Tag tag) {
+	public static Entity loadEntity(Level level, Tag tag) {
 		String classname = (String) tag.findTagByName("CLASSNAME").getValue();
 		Entity ent = null;
 		try {
-			ent = (Entity) Class.forName("game.entity." + classname + ".class")
-					.getConstructor(int.class, Tag.class).newInstance(id, tag);
+			ent = (Entity) Class.forName(classname)
+					.getConstructor(Level.class, Tag.class).newInstance(level, tag);
 		} catch (InstantiationException | IllegalAccessException
 				| ClassNotFoundException e) {
 			e.printStackTrace();
@@ -29,16 +29,16 @@ public class EntityLoader {
 	}
 
 	public static Tag saveObject(Entity o) {
-		Tag tag = new Tag(Tag.Type.TAG_Compound, "ENTITY_" + o.id,new Tag[1]);
+		Tag tag = new Tag(Tag.Type.TAG_Compound, "ENTITY_" + o.getId(), new Tag[] {new Tag(Tag.Type.TAG_Int, "dump", 0)});
 		tag.addTag(new Tag(Tag.Type.TAG_String, "CLASSNAME", o.getClass().getName()));
-		try {
-			if (doesArrayContain(o.getClass().getMethods(),
-					NBTCapable.class.getMethod("saveToNBT", Tag.class))) {
+//		try {
+//			if (doesArrayContain(o.getClass().getMethods(),
+//					NBTCapable.class.getMethod("saveToNBT", Tag.class))) {
 				o.saveToNBT(tag);
-			}
-		} catch (SecurityException | NoSuchMethodException e) {
-			e.printStackTrace();
-		}
+//			}
+//		} catch (SecurityException | NoSuchMethodException e) {
+//			e.printStackTrace();
+//		}
 		tag.addTag(new Tag(Tag.Type.TAG_End, null, null));
 		
 		return tag;

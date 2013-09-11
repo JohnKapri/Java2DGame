@@ -12,16 +12,27 @@ import java.io.File;
 public class GuiLoad extends Gui {
 
 	WorldPreview[] worlds;
+	File[] worldFiles;
 	int selectedEntry = 0;
 
 	public GuiLoad(Game game, int width, int height) {
 		super(game, width, height);
-		File f = new File(World.WORLD_DIR);
-		File[] saves = f.listFiles();
-		if (saves != null) {
-			worlds = new WorldPreview[saves.length];
-			for (int i = 0; i < saves.length; i++) {
-				worlds[i] = new WorldPreview(saves[i].getAbsolutePath());
+		File p = new File(World.WORLD_DIR);
+		File[] fs = p.listFiles();
+		int valid = 0;
+		for (File f : fs) {
+			if (f.getName().endsWith(".dat")) {
+				valid++;
+			}
+		}
+		worldFiles = new File[valid];
+		for (int i = 0; i < valid; i++) {
+			worldFiles[i] = fs[i];
+		}
+		if (worldFiles != null) {
+			worlds = new WorldPreview[worldFiles.length];
+			for (int i = 0; i < worldFiles.length; i++) {
+				worlds[i] = new WorldPreview(worldFiles[i].getAbsolutePath());
 			}
 		}
 	}
@@ -29,8 +40,9 @@ public class GuiLoad extends Gui {
 	@Override
 	public void actionPerformed(InputEvent event) {
 		super.actionPerformed(event);
-		
-		if (event.key.id == input.down.id && event.type == InputEventType.PRESSED) {
+
+		if (event.key.id == input.down.id
+				&& event.type == InputEventType.PRESSED) {
 			selectedEntry++;
 		}
 		if (event.key.id == input.up.id && event.type == InputEventType.PRESSED) {
@@ -42,8 +54,9 @@ public class GuiLoad extends Gui {
 		if (selectedEntry >= worlds.length) {
 			selectedEntry = worlds.length - 1;
 		}
-		if (event.key.id == input.action.id && event.type == InputEventType.PRESSED) {
-			game.setWorld(new World(game, worlds[selectedEntry].name));
+		if (event.key.id == input.action.id
+				&& event.type == InputEventType.PRESSED) {
+			game.setWorld(new World(game, worldFiles[selectedEntry]));
 			close();
 		}
 	}
@@ -73,8 +86,8 @@ public class GuiLoad extends Gui {
 						slotWidth, slotHeight, frameColor);
 
 				FontRenderer.drawString("Name: " + worlds[i].name, this,
-						slotPosX + 2, slotPosY + i * (slotHeight + 3) + 1, fontColor,
-						1);
+						slotPosX + 2, slotPosY + i * (slotHeight + 3) + 1,
+						fontColor, 1);
 				FontRenderer.drawString("Time played: " + worlds[i].timePlayed,
 						this, slotPosX + 2,
 						slotPosY + i * (slotHeight + 3) + 9, fontColor, 1);

@@ -4,6 +4,7 @@ import game.Game;
 import game.Game.DebugLevel;
 import game.Tag;
 import game.entity.Entity;
+import game.entity.EntityLoader;
 import game.gfx.Screen;
 import game.level.tile.Tile;
 
@@ -43,6 +44,51 @@ public class Level implements NBTCapable {
 			}
 			t.tick();
 		}
+
+		for (int i = 0; i < entities.size(); i++) {
+			Entity e = entities.get(i);
+			for (Entity e2 : doCollision(e)) {
+				Game.debug(Game.DebugLevel.INFO, "Collision of \""
+						+ e.getClass().getName() + "\" with \""
+						+ e2.getClass().getName() + "\"");
+				e.onCollide(e2);
+			}
+		}
+	}
+
+	public Entity[] doCollision(Entity e) {
+		List<Entity> ents = new ArrayList<Entity>();
+		for (int j = 0; j < entities.size(); j++) {
+			Entity e1 = entities.get(j);
+			if (e != e1 && e.doesCollideWith(e1)) {
+				e.onCollide(e1);
+			}
+		}
+		Entity[] res = new Entity[ents.size()];
+		for (int i = 0; i < ents.size(); i++) {
+			res[i] = ents.get(i);
+		}
+		return res;
+	}
+
+	public int getUniqueEntityId() {
+		int id = 0;
+		boolean found = false;
+		while (!found) {
+			boolean match = false;
+			for (Entity e : entities) {
+				if (e.getId() == id) {
+					match = true;
+					break;
+				}
+			}
+			if (!match) {
+				found = true;
+			} else {
+				id++;
+			}
+		}
+		return id;
 	}
 
 	public void generateLevel() {
@@ -137,11 +183,11 @@ public class Level implements NBTCapable {
 		entities.add(eintity);
 	}
 
-	public int getWidth() {
+	public int getWidthInTiles() {
 		return width;
 	}
 
-	public int getHeight() {
+	public int getHeightInTiles() {
 		return height;
 	}
 
@@ -155,36 +201,74 @@ public class Level implements NBTCapable {
 		this.width = (int) tag.findTagByName("WIDTH").getValue();
 		this.height = (int) tag.findTagByName("HEIGHT").getValue();
 		this.tiles = (byte[]) tag.findTagByName("TILES").getValue();
-		this.meta = (byte[]) tag.findTagByName("META").getValue();
-		this.overlay = (byte[]) tag.findTagByName("OVERLAY").getValue();
-		if(tiles.length != width * height) {
+		// this.meta = (byte[]) tag.findTagByName("META").getValue();
+		// this.overlay = (byte[]) tag.findTagByName("OVERLAY").getValue();
+		if (tiles.length != width * height) {
 			Game.debug(Game.DebugLevel.WARNING, "Tile data corrupted!");
-			Game.debug(Game.DebugLevel.ERROR, "Error while loading level \"" + name + "\"!");
+			Game.debug(Game.DebugLevel.ERROR, "Error while loading level \""
+					+ name + "\"!");
 		}
-		if(meta.length != width * height) {
-			Game.debug(Game.DebugLevel.WARNING, "Meta data corrupted!");
-			Game.debug(Game.DebugLevel.ERROR, "Error while loading level \"" + name + "\"!");
-		}
-		if(overlay.length != width * height) {
-			Game.debug(Game.DebugLevel.WARNING, "Overlay data corrupted!");
-			Game.debug(Game.DebugLevel.ERROR, "Error while loading level \"" + name + "\"!");
+		// if (meta.length != width * height) {
+		// Game.debug(Game.DebugLevel.WARNING, "Meta data corrupted!");
+		// Game.debug(Game.DebugLevel.ERROR, "Error while loading level \""
+		// + name + "\"!");
+		// }
+		// if (overlay.length != width * height) {
+		// Game.debug(Game.DebugLevel.WARNING, "Overlay data corrupted!");
+		// Game.debug(Game.DebugLevel.ERROR, "Error while loading level \""
+		// + name + "\"!");
+		// }
+		Tag ents = tag.findTagByName("ENTITIES");
+		for (Tag t : (Tag[]) ents.getValue()) {
+			System.out.println("Loading " + t.getName());
+			if (t.getType() == Tag.Type.TAG_Compound) {
+				this.addEntity(EntityLoader.loadEntity(this, t));
+			}
 		}
 	}
 
 	@Override
-	public Tag saveToNBT(Tag notused) {
-		Tag tag = new Tag(Tag.Type.TAG_Compound, name.toUpperCase(),
-				new Tag[] {
-						new Tag(Tag.Type.TAG_String, "NAME", this.getName()),
-						new Tag(Tag.Type.TAG_String, "NEXT_LEVEL", "none"),
-						new Tag(Tag.Type.TAG_Int, "WIDTH", this.getWidth()),
-						new Tag(Tag.Type.TAG_Int, "HEIGHT", this.getHeight()),
-						new Tag(Tag.Type.TAG_Byte_Array, "TILES",
-								this.getTileIdArray()),
-						new Tag(Tag.Type.TAG_Byte_Array, "META", this.meta),
-						new Tag(Tag.Type.TAG_Byte_Array, "OVERLAY",
-								this.overlay),
-						new Tag(Tag.Type.TAG_End, null, null) });
+	public Tag saveToNBT(Tag tag) {
+		tag.addTag(new Tag(Tag.Type.TAG_String, "NAME", this.getName()));
+		tag.addTag(new Tag(Tag.Type.TAG_Int, "WIDTH", this.getWidthInTiles()));
+		tag.addTag(new Tag(Tag.Type.TAG_Int, "HEIGHT", this.getHeightInTiles()));
+		tag.addTag(new Tag(Tag.Type.TAG_Byte_Array, "TILES", this
+				.getTileIdArray()));
+		// tag.addTag(new Tag(Tag.Type.TAG_Byte_Array, "META", this.meta));
+		// tag.addTag(new Tag(Tag.Type.TAG_Byte_Array, "OVERLAY",
+		// this.overlay));
+		Tag ents = new Tag(Tag.Type.TAG_Compound, "ENTITIES",
+				new Tag[] { new Tag(Tag.Type.TAG_Int, "dump", 0) });
+		for (int i = 0; i < entities.size(); i++) {
+			// Tag e = new Tag(Tag.Type.TAG_Compound, "ENTITY_" +
+			// entities.get(i).getId(), new Tag[] {new Tag(Tag.Type.TAG_Int,
+			// "dump", 0)});
+			ents.addTag(EntityLoader.saveObject(entities.get(i)));
+			// ents.addTag(e);
+		}
+		ents.addTag(new Tag(Tag.Type.TAG_End, null, null));
+		tag.addTag(ents);
+		tag.addTag(new Tag(Tag.Type.TAG_End, null, null));
 		return tag;
 	}
+
+	// @Override
+	// public void pathFinderVisited(int x, int y) {
+	//
+	// }
+	//
+	// @Override
+	// public boolean blocked(PathFindingContext context, int tx, int ty) {
+	// return getTile(tx, ty).isSolid();
+	// }
+	//
+	// @Override
+	// public float getCost(PathFindingContext context, int tx, int ty) {
+	// int cost = getTile(tx, ty).getMovementCost();
+	// if (getTile(tx, ty).getId() != getTile(context.getSourceX(),
+	// context.getSourceY()).getId()) {
+	// cost += 1;
+	// }
+	// return cost;
+	// }
 }

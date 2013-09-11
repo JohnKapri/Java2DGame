@@ -13,6 +13,7 @@ public class WorldPreview {
 	public String name;
 	public String timePlayed;
 	public String playerName;
+	public File file;
 
 	public WorldPreview(String path) {
 		File f = new File(path);

@@ -47,9 +47,7 @@ public class Game extends Canvas implements Runnable, FocusListener {
 	public Screen screen;
 	public InputHandler input;
 
-	// public Level level;
 	private World world;
-	// public Player player;
 	private Gui gui;
 	public Gui hud;
 
@@ -303,6 +301,7 @@ public class Game extends Canvas implements Runnable, FocusListener {
 			if (Game.DEBUG) {
 				System.out.println("[" + NAME + "] CRITICAL ERROR: " + msg);
 				System.out.println("System forced to exit!");
+				System.exit(1);
 			}
 			break;
 		}
